@@ -44,14 +44,13 @@ def sort_plane_list(plane_list):
 
 
 def plane_map(lat, lon, list):
-    plane_1 = f"{list.iloc[0]['lat']},{list.iloc[0]['lon']}"
-    plane_2 = f"{list.iloc[1]['lat']},{list.iloc[1]['lon']}"
-    plane_3 = f"{list.iloc[2]['lat']},{list.iloc[2]['lon']}"
-    map = (
+    planes = (
         "https://maps.googleapis.com/maps/api/staticmap?&size=700x700"
         f"&maptype=satellite&markers=color:gray%7Clabel:0%7C{lat},{lon}&"
-        f"markers=color:red%7Clabel:1%7C{plane_1}&markers=color:blue%7"
-        f"Clabel:2%7C{plane_2}&markers=color:yellow%7Clabel:"
-        f"3%7C{plane_3}&key={MAP_KEY}"
     )
+    for i in range(min(5, list.shape[0])):
+        plane = f"{list.iloc[i]['lat']},{list.iloc[i]['lon']}"
+        planes += f"markers=color:blue%7Clabel:{i+1}%7C{plane}&"
+
+    map = planes + f"key={MAP_KEY}"
     return map
