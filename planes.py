@@ -54,3 +54,12 @@ def plane_map(lat, lon, list):
 
     map = planes + f"key={MAP_KEY}"
     return map
+
+
+def get_plane_selector(list):
+    for i in range(min(5, list.shape[0])):
+        yield (
+            f"{i+1}) {list.iloc[i]['reg']} "
+            f"ALT: {int(round(list.iloc[i]['alt'] / 3.281, 0))} m. "
+            f"SPEED: {int(round(list.iloc[i]['spd'] * 1.852, 0))} km/h"
+        )
