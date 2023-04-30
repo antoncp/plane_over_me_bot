@@ -41,8 +41,12 @@ def location(message):
         plane_selector = InlineKeyboardMarkup(row_width=1)
         plane_selector.add(
             *[
-                InlineKeyboardButton(text=i, callback_data=f"del {i}")
-                for i in planes.get_plane_selector(sort_list)
+                InlineKeyboardButton(
+                    text=info,
+                    callback_data=(f"pl {reg}"),
+                )
+                for info, reg
+                in planes.get_plane_selector(sort_list)
             ]
         )
         bot.send_photo(
@@ -54,6 +58,13 @@ def location(message):
             ),
             reply_markup=plane_selector,
         )
+
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith('pl'))
+def show_timer(call):
+    plane = planes.plane_details(call.data.split()[1])
+    bot.send_message(call.message.chat.id, f"Reg number {plane.reg}")
+    bot.answer_callback_query(callback_query_id=call.id)
 
 
 if __name__ == "__main__":
