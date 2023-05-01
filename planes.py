@@ -80,8 +80,12 @@ def get_plane_selector(list):
         dist = float(round(list.iloc[i]["dst"] * 1.852, 2))
         alt = int(round(list.iloc[i]["alt"] / 3.281, 0))
         spd = int(round(list.iloc[i]["spd"] * 1.852, 0))
-        start = list.iloc[i]["from"]
-        end = list.iloc[i]["to"]
+        if list.iloc[i]['to'] != 'nan':
+            start = list.iloc[i]["from"]
+            end = list.iloc[i]["to"]
+        else:
+            start = "Departure airport unknown"
+            end = "Destination airport unknown"
         AirCraft(reg, dist, start, end, alt, spd)
         yield f"({i+1}) {dist} km / {model} / {alt} m / {spd} km/h", reg
 
@@ -100,17 +104,17 @@ def get_plane_photo(reg):
         "#results > div:nth-child(1) > div.result__section.result__"
         "section--info-wrapper > section.desktop-only.desktop-only--"
         "block > ul > li:nth-child(5) > span > a"
-    )
+    )[0].text
     place_img = soup.select(
         "#results > div:nth-child(1) > div.result__section.result__"
         "section--info2-wrapper > ul:nth-child(1) > li > span > a"
-    )
+    )[0].text
     author_img = soup.select(
         "#results > div:nth-child(1) > div.result__section.result__"
         "section--info2-wrapper > ul:nth-child(2) > li > span.result__"
         "infoListText.result__infoListText--photographer > a"
-    )
-    return image, plane_model, date_img, place_img, author_img
+    )[0].text
+    return image, plane_model, date_img, place_img, author_img, url
 
 
 def plane_details(reg):

@@ -74,11 +74,17 @@ def show_timer(call):
         date_img,
         place_img,
         author_img,
+        url
     ) = planes.get_plane_photo(plane.reg)
     bot.send_photo(
         call.message.chat.id,
         image,
-        caption=f"{plane_model} ({plane.reg})\n{plane.start} >>> {plane.end}",
+        caption=(f"{plane_model} `({plane.reg})`\n\n"
+                 f"*{plane.alt}* m / *{plane.spd}* km/h\n"
+                 f"_Distance from you: {plane.dist} km_\n\n"
+                 f"{plane.start}\n*>>>*\n{plane.end}\n\n"
+                 f"_Photo credits: {date_img}, {place_img}, {author_img} {url}_"),
+        parse_mode='Markdown'
     )
     bot.answer_callback_query(callback_query_id=call.id)
 
