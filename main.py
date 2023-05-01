@@ -16,6 +16,8 @@ RAPID_API = os.getenv("RAPID_API_TOKEN")
 MAP_KEY = os.getenv("MAP_KEY")
 bot = telebot.TeleBot(os.getenv("TEL_TOKEN"))
 
+bot.set_my_commands([])
+
 
 @bot.message_handler(commands=["start"])
 def start(message):
@@ -45,8 +47,7 @@ def location(message):
                     text=info,
                     callback_data=(f"pl {reg}"),
                 )
-                for info, reg
-                in planes.get_plane_selector(sort_list)
+                for info, reg in planes.get_plane_selector(sort_list)
             ]
         )
         bot.send_photo(
@@ -60,10 +61,25 @@ def location(message):
         )
 
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith('pl'))
+@bot.callback_query_handler(func=lambda call: call.data.startswith("pl"))
 def show_timer(call):
     plane = planes.plane_details(call.data.split()[1])
-    bot.send_message(call.message.chat.id, f"Reg number {plane.reg}")
+    if not plane:
+        bot.send_message(call.message.chat.id, "Data is outdated")
+        bot.answer_callback_query(callback_query_id=call.id)
+        return
+    (
+        image,
+        plane_model,
+        date_img,
+        place_img,
+        author_img,
+    ) = planes.get_plane_photo(plane.reg)
+    bot.send_photo(
+        call.message.chat.id,
+        image,
+        caption=f"{plane_model} ({plane.reg})\n{plane.start} >>> {plane.end}",
+    )
     bot.answer_callback_query(callback_query_id=call.id)
 
 

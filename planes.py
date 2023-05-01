@@ -1,22 +1,20 @@
 import requests
 import pandas as pd
+from bs4 import BeautifulSoup
 
 from main import RAPID_API, MAP_KEY
 
 
 class AirCraft:
-
     aircrafts = set()
 
-    def __init__(
-        self,
-        reg,
-        start,
-        end,
-    ):
+    def __init__(self, reg, dist, start, end, alt, spd):
         self.reg = reg
+        self.dist = dist
         self.start = start
         self.end = end
+        self.alt = alt
+        self.spd = spd
         AirCraft.aircrafts.add(self)
 
     def __str__(self):
@@ -84,13 +82,40 @@ def get_plane_selector(list):
         spd = int(round(list.iloc[i]["spd"] * 1.852, 0))
         start = list.iloc[i]["from"]
         end = list.iloc[i]["to"]
-        aircraft = AirCraft(reg, start, end)
-        yield f"{i+1}) {model} / {alt} m / {spd} km/h", reg
+        AirCraft(reg, dist, start, end, alt, spd)
+        yield f"({i+1}) {dist} km / {model} / {alt} m / {spd} km/h", reg
+
+
+def get_plane_photo(reg):
+    url = f"https://www.jetphotos.com/registration/{reg}"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
+    image = f"https:{soup.find_all('img')[3]['src']}"
+    plane_model = soup.select(
+        "#results > div:nth-child(1) > div.result__section.result"
+        "__section--info-wrapper > section.desktop-only.desktop-only"
+        "--block > ul > li:nth-child(3) > span > a"
+    )[0].text
+    date_img = soup.select(
+        "#results > div:nth-child(1) > div.result__section.result__"
+        "section--info-wrapper > section.desktop-only.desktop-only--"
+        "block > ul > li:nth-child(5) > span > a"
+    )
+    place_img = soup.select(
+        "#results > div:nth-child(1) > div.result__section.result__"
+        "section--info2-wrapper > ul:nth-child(1) > li > span > a"
+    )
+    author_img = soup.select(
+        "#results > div:nth-child(1) > div.result__section.result__"
+        "section--info2-wrapper > ul:nth-child(2) > li > span.result__"
+        "infoListText.result__infoListText--photographer > a"
+    )
+    return image, plane_model, date_img, place_img, author_img
 
 
 def plane_details(reg):
     aircraft = next(
-        (obj for obj in globals()['AirCraft'].aircrafts if obj.reg == reg),
+        (obj for obj in globals()["AirCraft"].aircrafts if obj.reg == reg),
         None,
     )
     return aircraft
