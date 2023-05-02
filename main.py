@@ -27,14 +27,27 @@ def start(message):
     keyboard.add(
         KeyboardButton(text="Share my location", request_location=True)
     )
+    keyboard.add(
+        KeyboardButton(text="Last location")
+    )
     bot.send_message(message.chat.id, "Hi!", reply_markup=keyboard)
 
 
 @bot.message_handler(content_types=["location"])
-def location(message):
-    if message.location is not None:
-        lat = message.location.latitude
-        lon = message.location.longitude
+def location(message, **kwargs):
+    if message.location is not None or kwargs.get('latitude'):
+        if kwargs.get('latitude'):
+            lat = kwargs.get('latitude')
+            lon = kwargs.get('longitude')
+        else:
+            lat = message.location.latitude
+            lon = message.location.longitude
+        user = planes.user_details(message.chat.id)
+        if user:
+            user.lat = lat
+            user.lon = lon
+        else:
+            planes.User(message.chat.id, lat, lon)
         plane_list = planes.get_plane_list(lat, lon)
         sort_list = planes.sort_plane_list(plane_list)
         num_total_planes = sort_list.shape[0]
@@ -62,7 +75,7 @@ def location(message):
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("pl"))
-def show_timer(call):
+def show_plane(call):
     plane = planes.plane_details(call.data.split()[1])
     if not plane:
         bot.send_message(call.message.chat.id, "Data is outdated")
@@ -87,6 +100,15 @@ def show_timer(call):
         parse_mode='Markdown'
     )
     bot.answer_callback_query(callback_query_id=call.id)
+
+
+@bot.message_handler(content_types=["text"])
+def handle_text(message):
+    if message.text == 'Last location':
+        user = planes.user_details(message.chat.id)
+        latitude = user.lat
+        longitude = user.lon
+        location(message, latitude=latitude, longitude=longitude)
 
 
 if __name__ == "__main__":

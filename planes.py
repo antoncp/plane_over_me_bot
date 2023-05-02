@@ -21,6 +21,16 @@ class AirCraft:
         return self.id
 
 
+class User:
+    users = dict()
+
+    def __init__(self, id, lat=None, lon=None):
+        self.id = id
+        self.lat = lat
+        self.lon = lon
+        User.users[self.id] = self
+
+
 def get_plane_list(lat, lon):
     url = (
         "https://adsbx-flight-sim-traffic.p.rapidapi.com/"
@@ -123,3 +133,8 @@ def plane_details(reg):
         None,
     )
     return aircraft
+
+
+def user_details(id):
+    user = globals()["User"].users.get(id)
+    return user
