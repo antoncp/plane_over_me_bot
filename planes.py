@@ -8,13 +8,14 @@ from main import RAPID_API, MAP_KEY
 class AirCraft:
     aircrafts = set()
 
-    def __init__(self, reg, dist, start, end, alt, spd):
+    def __init__(self, reg, dist, start, end, alt, spd, order):
         self.reg = reg
         self.dist = dist
         self.start = start
         self.end = end
         self.alt = alt
         self.spd = spd
+        self.order = order
         AirCraft.aircrafts.add(self)
 
     def __str__(self):
@@ -24,10 +25,12 @@ class AirCraft:
 class User:
     users = dict()
 
-    def __init__(self, id, lat=None, lon=None):
+    def __init__(self, id, lat=None, lon=None, last_map=None, caption=None):
         self.id = id
         self.lat = lat
         self.lon = lon
+        self.last_map = last_map
+        self.caption = caption
         User.users[self.id] = self
 
 
@@ -90,13 +93,14 @@ def get_plane_selector(list):
         dist = float(round(list.iloc[i]["dst"] * 1.852, 2))
         alt = int(round(list.iloc[i]["alt"] / 3.281, 0))
         spd = int(round(list.iloc[i]["spd"] * 1.852, 0))
-        if list.iloc[i]['to'] != 'nan':
+        order = i + 1
+        if list.iloc[i]["to"] != "nan":
             start = list.iloc[i]["from"]
             end = list.iloc[i]["to"]
         else:
             start = "Departure airport unknown"
             end = "Destination airport unknown"
-        AirCraft(reg, dist, start, end, alt, spd)
+        AirCraft(reg, dist, start, end, alt, spd, order)
         yield f"({i+1}) {dist} km / {model} / {alt} m / {spd} km/h", reg
 
 

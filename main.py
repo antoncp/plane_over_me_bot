@@ -22,23 +22,21 @@ bot.set_my_commands([])
 @bot.message_handler(commands=["start"])
 def start(message):
     keyboard = ReplyKeyboardMarkup(
-        row_width=1, resize_keyboard=True, one_time_keyboard=True
+        row_width=2, resize_keyboard=True, one_time_keyboard=True
     )
     keyboard.add(
-        KeyboardButton(text="Share my location", request_location=True)
-    )
-    keyboard.add(
-        KeyboardButton(text="Last location")
+        KeyboardButton(text="Planes", request_location=True),
+        KeyboardButton(text="Last location"),
     )
     bot.send_message(message.chat.id, "Hi!", reply_markup=keyboard)
 
 
 @bot.message_handler(content_types=["location"])
 def location(message, **kwargs):
-    if message.location is not None or kwargs.get('latitude'):
-        if kwargs.get('latitude'):
-            lat = kwargs.get('latitude')
-            lon = kwargs.get('longitude')
+    if message.location is not None or kwargs.get("latitude"):
+        if kwargs.get("latitude"):
+            lat = kwargs.get("latitude")
+            lon = kwargs.get("longitude")
         else:
             lat = message.location.latitude
             lon = message.location.longitude
@@ -47,7 +45,7 @@ def location(message, **kwargs):
             user.lat = lat
             user.lon = lon
         else:
-            planes.User(message.chat.id, lat, lon)
+            user = planes.User(message.chat.id, lat, lon)
         plane_list = planes.get_plane_list(lat, lon)
         sort_list = planes.sort_plane_list(plane_list)
         num_total_planes = sort_list.shape[0]
@@ -63,7 +61,7 @@ def location(message, **kwargs):
                 for info, reg in planes.get_plane_selector(sort_list)
             ]
         )
-        bot.send_photo(
+        sending = bot.send_photo(
             message.chat.id,
             plane_map,
             caption=(
@@ -72,6 +70,8 @@ def location(message, **kwargs):
             ),
             reply_markup=plane_selector,
         )
+        user.last_map = sending.photo[0].file_id
+        user.caption = sending.caption
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("pl"))
@@ -87,25 +87,70 @@ def show_plane(call):
         date_img,
         place_img,
         author_img,
-        url
+        url,
     ) = planes.get_plane_photo(plane.reg)
-    bot.send_photo(
-        call.message.chat.id,
-        image,
-        caption=(f"{plane_model} `({plane.reg})`\n\n"
-                 f"*{plane.alt}* m / *{plane.spd}* km/h\n"
-                 f"_Distance from you: {plane.dist} km_\n\n"
-                 f"{plane.start}\n*>>>*\n{plane.end}\n\n"
-                 f"_Photo credits: {date_img}, {place_img}, {author_img} {url}_"),
-        parse_mode='Markdown'
+    bot.edit_message_media(
+        media=telebot.types.InputMediaPhoto(image),
+        chat_id=call.message.chat.id,
+        message_id=call.message.message_id,
+    )
+    plane_selector = call.message.reply_markup
+    if "Show the map" not in str(call.message):
+        plane_selector.add(
+            InlineKeyboardButton(
+                text="Show the map",
+                callback_data=("last"),
+            )
+        )
+    bot.edit_message_caption(
+        caption=(
+            f"({plane.order}) {plane_model} `({plane.reg})`\n\n"
+            f"*{plane.alt}* m / *{plane.spd}* km/h\n"
+            f"_Distance from you: {plane.dist} km_\n\n"
+            f"{plane.start}\n*>>>*\n{plane.end}\n\n"
+            f"_Photo credits: {date_img}, {place_img}, {author_img} {url}_"
+        ),
+        chat_id=call.message.chat.id,
+        message_id=call.message.message_id,
+        reply_markup=call.message.reply_markup,
+        parse_mode="Markdown",
+    )
+    bot.answer_callback_query(callback_query_id=call.id)
+
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith("last"))
+def show_map_again(call):
+    user = planes.user_details(call.message.chat.id)
+    if not user or not user.last_map:
+        bot.send_message(call.message.chat.id, "Data is outdated")
+        bot.answer_callback_query(callback_query_id=call.id)
+        return
+    bot.edit_message_media(
+        media=telebot.types.InputMediaPhoto(user.last_map),
+        chat_id=call.message.chat.id,
+        message_id=call.message.message_id,
+    )
+    bot.edit_message_caption(
+        caption=user.caption,
+        chat_id=call.message.chat.id,
+        message_id=call.message.message_id,
+        reply_markup=call.message.reply_markup,
+        parse_mode="Markdown",
     )
     bot.answer_callback_query(callback_query_id=call.id)
 
 
 @bot.message_handler(content_types=["text"])
 def handle_text(message):
-    if message.text == 'Last location':
+    if message.text == "Last location":
         user = planes.user_details(message.chat.id)
+        if not user:
+            bot.send_message(
+                message.chat.id,
+                "There is no last position in system. "
+                "Please resend your location.",
+            )
+            return
         latitude = user.lat
         longitude = user.lon
         location(message, latitude=latitude, longitude=longitude)
