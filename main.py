@@ -28,7 +28,21 @@ def start(message):
         KeyboardButton(text="Planes", request_location=True),
         KeyboardButton(text="Last location"),
     )
-    bot.send_message(message.chat.id, "Hi!", reply_markup=keyboard)
+    bot.send_message(
+        message.chat.id,
+        ("Welcome to the *Plane_over_me_bot*. Provide your location via "
+         "Telegram and get instant picture about nearest planes in the air. "
+         "After getting the map with planes' marks you can examine the "
+         "concrete plane by pushing the button with its parameters _(distance "
+         "from you / plane model / plane altitude / plane speed)_.\n\n"
+         "Use bot buttons, integrated to the keyboard:\n\n"
+         "*Planes* - up to 5 planes around you, higher than "
+         "100 meters\n\n*Last location* - planes in you last provided "
+         "location without sending new one (e.g. for requests from "
+         "non-mobile Telegram)"),
+        reply_markup=keyboard,
+        parse_mode="Markdown",
+    )
 
 
 @bot.message_handler(content_types=["location"])
@@ -157,4 +171,4 @@ def handle_text(message):
 
 
 if __name__ == "__main__":
-    bot.polling(none_stop=True, interval=0)
+    bot.infinity_polling(timeout=10, long_polling_timeout=5)
