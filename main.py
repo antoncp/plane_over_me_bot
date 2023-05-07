@@ -103,12 +103,12 @@ def show_plane(call):
         author_img,
         url,
     ) = planes.get_plane_photo(plane.reg)
+    plane_selector = call.message.reply_markup
     bot.edit_message_media(
         media=telebot.types.InputMediaPhoto(image),
         chat_id=call.message.chat.id,
         message_id=call.message.message_id,
     )
-    plane_selector = call.message.reply_markup
     if "Show the map" not in str(call.message):
         plane_selector.add(
             InlineKeyboardButton(
@@ -126,7 +126,7 @@ def show_plane(call):
         ),
         chat_id=call.message.chat.id,
         message_id=call.message.message_id,
-        reply_markup=call.message.reply_markup,
+        reply_markup=plane_selector,
         parse_mode="Markdown",
     )
     bot.answer_callback_query(callback_query_id=call.id)
