@@ -82,7 +82,7 @@ def location(message, **kwargs):
             plane_map,
             caption=(
                 f"{num_planes_on_map} planes on the map"
-                f", total in 80 km circle: {num_total_planes}"
+                f", total in a 80 km circle: {num_total_planes}"
             ),
             reply_markup=plane_selector,
         )

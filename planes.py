@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 
 from main import RAPID_API, MAP_KEY
 
+
 class AirCraft:
     aircrafts = set()
 
