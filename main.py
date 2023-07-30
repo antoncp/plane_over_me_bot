@@ -2,12 +2,8 @@ import os
 
 import telebot
 from dotenv import load_dotenv
-from telebot.types import (
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-    KeyboardButton,
-    ReplyKeyboardMarkup,
-)
+from telebot.types import (InlineKeyboardButton, InlineKeyboardMarkup,
+                           KeyboardButton, ReplyKeyboardMarkup)
 
 import planes
 

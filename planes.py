@@ -1,8 +1,8 @@
-import requests
 import pandas as pd
+import requests
 from bs4 import BeautifulSoup
 
-from main import RAPID_API, MAP_KEY
+from main import MAP_KEY, RAPID_API
 
 
 class AirCraft:
