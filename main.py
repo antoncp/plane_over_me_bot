@@ -12,9 +12,11 @@ from telebot.types import (
 import planes
 
 load_dotenv()
-RAPID_API = os.getenv("RAPID_API_TOKEN")
-MAP_KEY = os.getenv("MAP_KEY")
-bot = telebot.TeleBot(os.getenv("TEL_TOKEN"))
+
+MODE = "_LOCAL" if os.getenv("DEBUG") == "True" else ""
+RAPID_API = os.getenv(f"RAPID_API_TOKEN{MODE}")
+MAP_KEY = os.getenv(f"MAP_KEY{MODE}")
+bot = telebot.TeleBot(os.getenv(f"TEL_TOKEN{MODE}"))
 
 bot.set_my_commands([])
 
@@ -80,7 +82,7 @@ def location(message, **kwargs):
             plane_map,
             caption=(
                 f"{num_planes_on_map} planes on the map"
-                f", total in a 80 km circle: {num_total_planes}"
+                f", total in 80 km circle: {num_total_planes}"
             ),
             reply_markup=plane_selector,
         )
