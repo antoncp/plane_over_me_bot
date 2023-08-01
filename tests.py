@@ -12,15 +12,15 @@ print("Photos test successful")
 # Tests start message to the bot
 intro_message = Message(
     message_id=3475,
-    from_user=User(id=82176433, is_bot=False, first_name="Anton"),
+    from_user=User(id=82175453, is_bot=False, first_name="Anton"),
     date=1690915163,
-    chat=Chat(id=82176433, type="private"),
+    chat=Chat(id=82175453, type="private"),
     content_type="text",
     options=[],
     json_string={
         "message_id": 3475,
         "from": {
-            "id": 82176433,
+            "id": 82175453,
             "is_bot": False,
             "first_name": "Anton",
             "username": "antoncp",
