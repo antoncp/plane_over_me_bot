@@ -3,7 +3,7 @@ from telebot.types import Chat, Message, User
 import main
 import planes
 
-# Tests fetching plane's photo from jetphotos.com
+# Tests fetching planes photo from jetphotos.com
 assert (
     type(pl := planes.get_plane_photo("EI-FPH")[2]) == str
 ), f"Wrong type: {pl}"
