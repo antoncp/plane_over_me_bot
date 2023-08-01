@@ -10,6 +10,9 @@ import planes
 load_dotenv()
 
 MODE = "_LOCAL" if os.getenv("DEBUG") == "True" else ""
+bot = telebot.TeleBot(os.getenv(f"TEL_TOKEN{MODE}"))
+
+bot.set_my_commands([])
 
 
 def send_text(*args):
@@ -177,6 +180,4 @@ def handle_text(message):
 
 
 if __name__ == "__main__":
-    bot = telebot.TeleBot(os.getenv(f"TEL_TOKEN{MODE}"))
-    bot.set_my_commands([])
     bot.infinity_polling(timeout=10, long_polling_timeout=5)

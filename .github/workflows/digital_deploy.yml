@@ -24,6 +24,11 @@ jobs:
         pip install flake8==6.0.0 flake8-isort==6.0.0
         pip install -r requirements.txt
     - name: Lint with flake8 and run tests
+      env:
+        DEBUG: ${{ secrets.DEBUG }}
+        TEL_TOKEN_LOCAL: ${{ secrets.TEL_TOKEN_LOCAL }}
+        RAPID_API_TOKEN_LOCAL: ${{ secrets.RAPID_API_TOKEN_LOCAL }}
+        MAP_KEY_LOCAL: ${{ secrets.MAP_KEY_LOCAL }}
       run: |
         flake8 .
         python tests.py 
