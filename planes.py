@@ -1,8 +1,15 @@
+import os
+
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 
-from main import MAP_KEY, RAPID_API
+load_dotenv()
+
+MODE = "_LOCAL" if os.getenv("DEBUG") == "True" else ""
+RAPID_API = os.getenv(f"RAPID_API_TOKEN{MODE}")
+MAP_KEY = os.getenv(f"MAP_KEY{MODE}")
 
 
 class AirCraft:

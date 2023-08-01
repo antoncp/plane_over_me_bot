@@ -10,15 +10,27 @@ import planes
 load_dotenv()
 
 MODE = "_LOCAL" if os.getenv("DEBUG") == "True" else ""
-RAPID_API = os.getenv(f"RAPID_API_TOKEN{MODE}")
-MAP_KEY = os.getenv(f"MAP_KEY{MODE}")
 bot = telebot.TeleBot(os.getenv(f"TEL_TOKEN{MODE}"))
 
 bot.set_my_commands([])
 
 
+def send_text(*args):
+    bot.send_message(
+        args[0],
+        args[1],
+        reply_markup=args[2] if args[2] else None,
+        parse_mode="Markdown",
+    )
+
+
 @bot.message_handler(commands=["start"])
 def start(message):
+    answer = start_main(message)
+    send_text(*answer)
+
+
+def start_main(message):
     keyboard = ReplyKeyboardMarkup(
         row_width=2, resize_keyboard=True, one_time_keyboard=True
     )
@@ -26,21 +38,20 @@ def start(message):
         KeyboardButton(text="Planes", request_location=True),
         KeyboardButton(text="Last location"),
     )
-    bot.send_message(
-        message.chat.id,
-        ("Welcome to the *Plane_over_me_bot*. Provide your location via "
-         "Telegram and get instant picture about nearest planes in the air. "
-         "After getting the map with planes' marks you can examine the "
-         "concrete plane by pushing the button with its parameters _(distance "
-         "from you / plane model / plane altitude / plane speed)_.\n\n"
-         "Use bot buttons, integrated to the keyboard:\n\n"
-         "*Planes* - up to 5 planes around you, higher than "
-         "100 meters\n\n*Last location* - planes in you last provided "
-         "location without sending new one (e.g. for requests from "
-         "non-mobile Telegram)"),
-        reply_markup=keyboard,
-        parse_mode="Markdown",
+    text = (
+        "Welcome to the *Plane_over_me_bot*. Provide your location via "
+        "Telegram and get instant picture about nearest planes in the air. "
+        "After getting the map with planes' marks you can examine the "
+        "concrete plane by pushing the button with its parameters _(distance "
+        "from you / plane model / plane altitude / plane speed)_.\n\n"
+        "Use bot buttons, integrated to the keyboard:\n\n"
+        "*Planes* - up to 5 planes around you, higher than "
+        "100 meters\n\n*Last location* - planes in you last provided "
+        "location without sending new one (e.g. for requests from "
+        "non-mobile Telegram)"
     )
+
+    return message.chat.id, text, keyboard
 
 
 @bot.message_handler(content_types=["location"])

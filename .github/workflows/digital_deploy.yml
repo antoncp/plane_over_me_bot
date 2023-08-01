@@ -23,8 +23,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8==6.0.0 flake8-isort==6.0.0
         pip install -r requirements.txt
-    - name: Lint with flake8
-      run: flake8 .
+    - name: Lint with flake8 and run tests
+      run: |
+        flake8 .
+        python tests.py 
 
   deploy:
       runs-on: ubuntu-latest
