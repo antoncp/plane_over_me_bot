@@ -21,4 +21,11 @@ python3.9 -m venv venv
 - Install dependencies from requirements.txt file with activated virtual environment
 ```
 pip install -r requirements.txt
-``` 
+```
+- Execute a command to run the bot in a polling mode 
+```
+python main.py
+```
+
+### Preconfigured GitHub Actions workflow
+After forking the repository, use the workflow [Deploy to Digital Ocean](https://github.com/antoncp/plane_over_me_bot/blob/main/.github/workflows/digital_deploy.yml) from the `.github` folder for quickly assess code quality with `flake8` and fast deploy to the production server.   
