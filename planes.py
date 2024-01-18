@@ -1,3 +1,4 @@
+import logging
 import os
 
 import pandas as pd
@@ -6,6 +7,7 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 
 load_dotenv()
+logger = logging.getLogger("all")
 
 MODE = "_LOCAL" if os.getenv("DEBUG") == "True" else ""
 RAPID_API = os.getenv(f"RAPID_API_TOKEN{MODE}")
@@ -70,14 +72,17 @@ def sort_plane_list(plane_list):
             "to": str,
             "lon": float,
             "lat": float,
-        }
+        },
+        errors="ignore",
     )
     list = list[
         (list["dst"] < 20)
         & (list["alt"] > 200)
         & ~((list["alt"] > 1000) & (list["spd"] < 60))
     ]
-    return list.sort_values(by="dst")
+    list = list.sort_values(by="dst")
+    logger.warning(list)
+    return list
 
 
 def plane_map(lat, lon, list):
