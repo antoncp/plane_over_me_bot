@@ -1,17 +1,11 @@
-import logging
-import os
-
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-from dotenv import load_dotenv
 
-load_dotenv()
-logger = logging.getLogger("all")
+from config import logger, settings
 
-MODE = "_LOCAL" if os.getenv("DEBUG") == "True" else ""
-RAPID_API = os.getenv(f"RAPID_API_TOKEN{MODE}")
-MAP_KEY = os.getenv(f"MAP_KEY{MODE}")
+RAPID_API = settings.RAPID_API
+MAP_KEY = settings.MAP_KEY
 
 
 class AirCraft:

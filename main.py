@@ -1,23 +1,12 @@
-import logging.config
-import os
-
 import telebot
-from dotenv import load_dotenv
 from telebot.types import (InlineKeyboardButton, InlineKeyboardMarkup,
                            KeyboardButton, ReplyKeyboardMarkup)
-from yaml import safe_load
 
+from config import tel_logger, settings
 import planes
 
-load_dotenv()
 
-MODE = "_LOCAL" if os.getenv("DEBUG") == "True" else ""
-bot = telebot.TeleBot(os.getenv(f"TEL_TOKEN{MODE}"))
-
-with open("logging_config.yaml", "rt") as f:
-    config = safe_load(f.read())
-logging.config.dictConfig(config)
-logger = logging.getLogger("all")
+bot = telebot.TeleBot(settings.TEL_TOKEN)
 
 bot.set_my_commands([])
 
@@ -180,7 +169,7 @@ def handle_text(message):
                 "There is no last position in system. "
                 "Please resend your location.",
             )
-            logger.warning("No position in system")
+            tel_logger.warning(f"No position for {message.chat.id}")
             return
         latitude = user.lat
         longitude = user.lon
