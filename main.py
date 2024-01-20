@@ -2,9 +2,8 @@ import telebot
 from telebot.types import (InlineKeyboardButton, InlineKeyboardMarkup,
                            KeyboardButton, ReplyKeyboardMarkup)
 
-from config import tel_logger, settings
 import planes
-
+from config import settings, tel_logger
 
 bot = telebot.TeleBot(settings.TEL_TOKEN)
 
