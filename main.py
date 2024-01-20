@@ -3,7 +3,7 @@ from telebot.types import (InlineKeyboardButton, InlineKeyboardMarkup,
                            KeyboardButton, ReplyKeyboardMarkup)
 
 import planes
-from config import settings, tel_logger
+from config import settings
 
 bot = telebot.TeleBot(settings.TEL_TOKEN)
 
@@ -168,7 +168,6 @@ def handle_text(message):
                 "There is no last position in system. "
                 "Please resend your location.",
             )
-            tel_logger.warning(f"No position for {message.chat.id}")
             return
         latitude = user.lat
         longitude = user.lon

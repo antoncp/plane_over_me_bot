@@ -1,6 +1,7 @@
 import logging.config
 import os
 
+import requests
 import yaml
 from dotenv import load_dotenv
 
@@ -20,9 +21,24 @@ class Settings:
 
 settings = Settings()
 
-# Logging set up + custom logging handler
+
+# Custom logging handler
+class CustomHTTPHandler(logging.Handler):
+    def __init__(self, url=None):
+        super().__init__()
+        self.url = f"https://api.telegram.org/{settings.TEL_LOG}/sendMessage"
+
+    def emit(self, record):
+        data = {"chat_id": settings.ADMIN_ID, "text": record.getMessage()}
+
+        response = requests.get(self.url, data=data)
+        if response.status_code != 200:
+            logging.error("Error sending message: {}".format(response.text))
+
+
+# Logging set up
 with open("logging_config.yaml", "rt") as f:
-    config = yaml.safe_load(f.read())
-logging.config.dictConfig(config)
+    log_config = yaml.safe_load(f.read())
+logging.config.dictConfig(log_config)
 logger = logging.getLogger("all")
 tel_logger = logging.getLogger("teleg")

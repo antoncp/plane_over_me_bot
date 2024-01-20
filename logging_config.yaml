@@ -18,7 +18,8 @@ handlers:
     formatter: default
   
   telegram:
-    class: log_config.CustomHTTPHandler
+    level: ERROR
+    class: config.CustomHTTPHandler
     formatter: default
 
 loggers:
@@ -32,4 +33,4 @@ loggers:
 
 root:
   formatter: default
-  handlers: [default]
+  handlers: [telegram]
