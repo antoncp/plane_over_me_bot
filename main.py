@@ -181,5 +181,3 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error in Telegram bot: {e}")
         shutdown_event.set()
-
-flask_thread.join()
