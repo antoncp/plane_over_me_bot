@@ -3,7 +3,7 @@ from telebot.types import (InlineKeyboardButton, InlineKeyboardMarkup,
                            KeyboardButton, ReplyKeyboardMarkup)
 
 import planes
-from config import settings
+from config import flask_thread, settings, shutdown_event
 
 bot = telebot.TeleBot(settings.TEL_TOKEN)
 
@@ -175,4 +175,11 @@ def handle_text(message):
 
 
 if __name__ == "__main__":
-    bot.infinity_polling(timeout=10, long_polling_timeout=5)
+    flask_thread.start()
+    try:
+        bot.infinity_polling(timeout=10, long_polling_timeout=5)
+    except Exception as e:
+        print(f"Error in Telegram bot: {e}")
+        shutdown_event.set()
+
+flask_thread.join()

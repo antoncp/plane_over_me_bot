@@ -1,9 +1,11 @@
 import logging.config
 import os
+from threading import Event, Thread
 
 import requests
 import yaml
 from dotenv import load_dotenv
+from flask import Flask
 
 load_dotenv()
 
@@ -42,3 +44,21 @@ with open("logging_config.yaml", "rt") as f:
 logging.config.dictConfig(log_config)
 logger = logging.getLogger("all")
 tel_logger = logging.getLogger("teleg")
+
+
+# Flask health check endpoint
+app = Flask(__name__)
+shutdown_event = Event()
+
+
+@app.route("/", methods=["GET"])
+def webhook():
+    if not shutdown_event.is_set():
+        return "Telegram bot is up!"
+
+
+def run_flask_app():
+    app.run(host="0.0.0.0", port=1300)
+
+
+flask_thread = Thread(target=run_flask_app)
