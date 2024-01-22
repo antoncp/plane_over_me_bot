@@ -7,6 +7,8 @@ import yaml
 from dotenv import load_dotenv
 from flask import Flask
 
+import planes
+
 load_dotenv()
 
 MODE = "_LOCAL" if os.getenv("DEBUG") == "True" else ""
@@ -24,7 +26,7 @@ class Settings:
 settings = Settings()
 
 
-# Custom logging handler
+# Custom logging handler (sends errors alerts via Telegram)
 class CustomHTTPHandler(logging.Handler):
     def __init__(self, url=None):
         super().__init__()
@@ -38,12 +40,12 @@ class CustomHTTPHandler(logging.Handler):
             logging.error("Error sending message: {}".format(response.text))
 
 
-# Logging set up
+# Logging configuration
 with open("logging_config.yaml", "rt") as f:
     log_config = yaml.safe_load(f.read())
 logging.config.dictConfig(log_config)
-logger = logging.getLogger("all")
-tel_logger = logging.getLogger("teleg")
+logger = logging.getLogger("special_debug")
+tel_logger = logging.getLogger("telegram")
 
 
 # Flask health check endpoint
@@ -54,7 +56,19 @@ shutdown_event = Event()
 @app.route("/", methods=["GET"])
 def webhook():
     if not shutdown_event.is_set():
-        return "Telegram bot is up!"
+        title = "Planes bot is up"
+        num_planes = len(planes.AirCraft.aircrafts)
+        num_users = len(planes.User.users.keys())
+        reg_list = " no dedicated planes "
+        if num_planes:
+            reg_planes = []
+            for plane in planes.AirCraft.aircrafts:
+                reg_planes.append(plane.reg)
+            reg_list = ", ".join(reg_planes)
+        info_1 = f"There are <b>{num_planes} planes</b> in system now:"
+        info_2 = f"Active users in system: <b>{num_users}</b>"
+        message = [title, info_1, f"<i>[{reg_list}]</i>", info_2]
+        return "<br><br>".join(message)
 
 
 def run_flask_app():

@@ -8,11 +8,18 @@ formatters:
 
 handlers:
   default:
-    level: ERROR
+    level: INFO
     class: logging.StreamHandler
     formatter: default
 
   all:
+    level: INFO
+    class: logging.FileHandler
+    filename: logs/all.log
+    formatter: default
+
+  special:
+    level: DEBUG
     class: logging.FileHandler
     filename: logs/all.log
     formatter: default
@@ -23,14 +30,14 @@ handlers:
     formatter: default
 
 loggers:
-  all:
+  special_debug:
     level: DEBUG
-    handlers: [all]
+    handlers: [special]
 
-  teleg:
-    level: DEBUG
+  telegram:
+    level: ERROR
     handlers: [telegram]
 
 root:
   formatter: default
-  handlers: [telegram]
+  handlers: [telegram, all, default]

@@ -75,7 +75,7 @@ def sort_plane_list(plane_list):
         & ~((list["alt"] > 1000) & (list["spd"] < 60))
     ]
     list = list.sort_values(by="dst")
-    logger.warning(list)
+    logger.debug(list)
     return list
 
 
