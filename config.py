@@ -16,7 +16,7 @@ MODE = "_LOCAL" if os.getenv("DEBUG") == "True" else ""
 
 # Environment variables set up
 class Settings:
-    DEBUG = os.getenv("DEBUG")
+    DEBUG = os.getenv("DEBUG") == "True"
     TEL_TOKEN = os.getenv(f"TEL_TOKEN{MODE}")
     RAPID_API = os.getenv(f"RAPID_API_TOKEN{MODE}")
     MAP_KEY = os.getenv(f"MAP_KEY{MODE}")
