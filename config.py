@@ -16,11 +16,14 @@ MODE = "_LOCAL" if os.getenv("DEBUG") == "True" else ""
 
 # Environment variables set up
 class Settings:
+    DEBUG = os.getenv("DEBUG")
     TEL_TOKEN = os.getenv(f"TEL_TOKEN{MODE}")
     RAPID_API = os.getenv(f"RAPID_API_TOKEN{MODE}")
     MAP_KEY = os.getenv(f"MAP_KEY{MODE}")
     TEL_LOG = os.getenv("TEL_LOG")
     ADMIN_ID = os.getenv("ADMIN_ID")
+    BASE_LATITUDE = os.getenv("BASE_LATITUDE")
+    BASE_LONGITUDE = os.getenv("BASE_LONGITUDE")
 
 
 settings = Settings()
@@ -34,10 +37,9 @@ class CustomHTTPHandler(logging.Handler):
 
     def emit(self, record):
         data = {"chat_id": settings.ADMIN_ID, "text": record.getMessage()}
-
         response = requests.get(self.url, data=data)
         if response.status_code != 200:
-            logging.error("Error sending message: {}".format(response.text))
+            logging.error(f"Error sending message: {response.text}")
 
 
 # Logging configuration

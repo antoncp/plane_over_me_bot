@@ -8,7 +8,7 @@ formatters:
 
 handlers:
   default:
-    level: INFO
+    level: DEBUG
     class: logging.StreamHandler
     formatter: default
 

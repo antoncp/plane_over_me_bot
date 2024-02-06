@@ -148,11 +148,13 @@ def show_map_again(call):
         chat_id=call.message.chat.id,
         message_id=call.message.message_id,
     )
+    plane_selector = call.message.reply_markup
+    plane_selector.keyboard = plane_selector.keyboard[:-1]
     bot.edit_message_caption(
         caption=user.caption,
         chat_id=call.message.chat.id,
         message_id=call.message.message_id,
-        reply_markup=call.message.reply_markup,
+        reply_markup=plane_selector,
         parse_mode="Markdown",
     )
     bot.answer_callback_query(callback_query_id=call.id)
@@ -162,15 +164,19 @@ def show_map_again(call):
 def handle_text(message):
     if message.text == "Last location":
         user = planes.user_details(message.chat.id)
-        if not user:
+        if not user and not settings.DEBUG:
             bot.send_message(
                 message.chat.id,
                 "There is no last position in system. "
                 "Please resend your location.",
             )
             return
-        latitude = user.lat
-        longitude = user.lon
+        if not user and settings.DEBUG:
+            latitude = settings.BASE_LATITUDE
+            longitude = settings.BASE_LONGITUDE
+        else:
+            latitude = user.lat
+            longitude = user.lon
         location(message, latitude=latitude, longitude=longitude)
 
 
