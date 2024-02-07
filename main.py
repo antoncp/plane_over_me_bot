@@ -94,7 +94,7 @@ def location(message, **kwargs):
             parse_mode="Markdown",
         )
         user.last_map[sending.message_id] = sending.photo[0].file_id
-        user.caption[sending.message_id] = sending.caption
+        user.caption[sending.message_id] = caption
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("pl"))
