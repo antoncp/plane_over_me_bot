@@ -28,12 +28,12 @@ class AirCraft:
 class User:
     users = dict()
 
-    def __init__(self, id, lat=None, lon=None, last_map=None, caption=None):
+    def __init__(self, id, lat=None, lon=None):
         self.id = id
         self.lat = lat
         self.lon = lon
-        self.last_map = last_map
-        self.caption = caption
+        self.last_map = {}
+        self.caption = {}
         User.users[self.id] = self
 
 

@@ -88,8 +88,8 @@ def location(message, **kwargs):
             ),
             reply_markup=plane_selector,
         )
-        user.last_map = sending.photo[0].file_id
-        user.caption = sending.caption
+        user.last_map[sending.message_id] = sending.photo[0].file_id
+        user.caption[sending.message_id] = sending.caption
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("pl"))
@@ -139,19 +139,21 @@ def show_plane(call):
 @bot.callback_query_handler(func=lambda call: call.data.startswith("last"))
 def show_map_again(call):
     user = planes.user_details(call.message.chat.id)
-    if not user or not user.last_map:
+    if not user or not user.last_map.get(call.message.message_id):
         bot.send_message(call.message.chat.id, "Data is outdated")
         bot.answer_callback_query(callback_query_id=call.id)
         return
     bot.edit_message_media(
-        media=telebot.types.InputMediaPhoto(user.last_map),
+        media=telebot.types.InputMediaPhoto(
+            user.last_map[call.message.message_id]
+        ),
         chat_id=call.message.chat.id,
         message_id=call.message.message_id,
     )
     plane_selector = call.message.reply_markup
     plane_selector.keyboard = plane_selector.keyboard[:-1]
     bot.edit_message_caption(
-        caption=user.caption,
+        caption=user.caption[call.message.message_id],
         chat_id=call.message.chat.id,
         message_id=call.message.message_id,
         reply_markup=plane_selector,
