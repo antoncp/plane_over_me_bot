@@ -3,7 +3,7 @@ from telebot.types import (InlineKeyboardButton, InlineKeyboardMarkup,
                            KeyboardButton, ReplyKeyboardMarkup)
 
 import planes
-from config import flask_thread, settings, shutdown_event
+from config import flask_thread, logger, settings, shutdown_event
 
 bot = telebot.TeleBot(settings.TEL_TOKEN)
 
@@ -69,6 +69,11 @@ def location(message, **kwargs):
         num_total_planes = sort_list.shape[0]
         num_planes_on_map = min(5, sort_list.shape[0])
         plane_map = planes.plane_map(lat, lon, sort_list)
+        caption = (
+            f"{num_planes_on_map} planes on the map"
+            f", total in a 80 km circle: {num_total_planes}"
+        )
+        sending = bot.send_photo(message.chat.id, plane_map)
         plane_selector = InlineKeyboardMarkup(row_width=1)
         plane_selector.add(
             *[
@@ -76,17 +81,17 @@ def location(message, **kwargs):
                     text=info,
                     callback_data=(f"pl {reg}"),
                 )
-                for info, reg in planes.get_plane_selector(sort_list)
+                for info, reg in planes.get_plane_selector(
+                    sort_list, f"{message.chat.id}{sending.message_id}"
+                )
             ]
         )
-        sending = bot.send_photo(
-            message.chat.id,
-            plane_map,
-            caption=(
-                f"{num_planes_on_map} planes on the map"
-                f", total in a 80 km circle: {num_total_planes}"
-            ),
+        bot.edit_message_caption(
+            caption=caption,
+            chat_id=message.chat.id,
+            message_id=sending.message_id,
             reply_markup=plane_selector,
+            parse_mode="Markdown",
         )
         user.last_map[sending.message_id] = sending.photo[0].file_id
         user.caption[sending.message_id] = sending.caption
@@ -187,5 +192,5 @@ if __name__ == "__main__":
     try:
         bot.infinity_polling(timeout=10, long_polling_timeout=5)
     except Exception as e:
-        print(f"Error in Telegram bot: {e}")
+        logger.error(f"Error in Telegram bot: {e}")
         shutdown_event.set()

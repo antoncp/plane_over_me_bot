@@ -1,3 +1,5 @@
+from dataclasses import astuple, dataclass
+
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
@@ -10,8 +12,10 @@ MAP_KEY = settings.MAP_KEY
 
 class AirCraft:
     aircrafts = set()
+    airphotos = dict()
 
-    def __init__(self, reg, dist, start, end, alt, spd, order):
+    def __init__(self, id, reg, dist, start, end, alt, spd, order):
+        self.id = id
         self.reg = reg
         self.dist = dist
         self.start = start
@@ -35,6 +39,16 @@ class User:
         self.last_map = {}
         self.caption = {}
         User.users[self.id] = self
+
+
+@dataclass
+class AirPhoto:
+    image: str
+    plane_model: str
+    date_img: str
+    place_img: str
+    author_img: str
+    url: str
 
 
 def get_plane_list(lat, lon):
@@ -75,7 +89,6 @@ def sort_plane_list(plane_list):
         & ~((list["alt"] > 1000) & (list["spd"] < 60))
     ]
     list = list.sort_values(by="dst")
-    logger.debug(list)
     return list
 
 
@@ -92,7 +105,7 @@ def plane_map(lat, lon, list):
     return map
 
 
-def get_plane_selector(list):
+def get_plane_selector(list, prefix):
     for i in range(min(5, list.shape[0])):
         model = list.iloc[i]["type"]
         reg = list.iloc[i]["reg"]
@@ -106,11 +119,15 @@ def get_plane_selector(list):
         else:
             start = "Departure airport unknown"
             end = "Destination airport unknown"
-        AirCraft(reg, dist, start, end, alt, spd, order)
-        yield f"({i+1}) {dist} km / {model} / {alt} m / {spd} km/h", reg
+        id = f"{prefix}&{reg}"
+        AirCraft(id, reg, dist, start, end, alt, spd, order)
+        yield f"({i+1}) {dist} km / {model} / {alt} m / {spd} km/h", id
 
 
 def get_plane_photo(reg):
+    saved_plane = plane_photo_details(reg)
+    if saved_plane:
+        return astuple(saved_plane)
     url = f"https://www.jetphotos.com/registration/{reg}"
     response = requests.get(url)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -134,15 +151,23 @@ def get_plane_photo(reg):
         "section--info2-wrapper > ul:nth-child(2) > li > span.result__"
         "infoListText.result__infoListText--photographer > a"
     )[0].text
-    return image, plane_model, date_img, place_img, author_img, url
+    logger.debug(f"Request to {url}")
+    plane = AirPhoto(image, plane_model, date_img, place_img, author_img, url)
+    AirCraft.airphotos[reg] = plane
+    return astuple(plane)
 
 
-def plane_details(reg):
+def plane_details(id):
     aircraft = next(
-        (obj for obj in globals()["AirCraft"].aircrafts if obj.reg == reg),
+        (obj for obj in globals()["AirCraft"].aircrafts if obj.id == id),
         None,
     )
     return aircraft
+
+
+def plane_photo_details(reg):
+    plane = globals()["AirCraft"].airphotos.get(reg)
+    return plane
 
 
 def user_details(id):

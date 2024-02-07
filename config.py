@@ -66,7 +66,7 @@ def webhook():
             reg_planes = []
             for plane in planes.AirCraft.aircrafts:
                 reg_planes.append(plane.reg)
-            reg_list = ", ".join(reg_planes)
+            reg_list = ", ".join(set(reg_planes))
         info_1 = f"There are <b>{num_planes} planes</b> in system now:"
         info_2 = f"Active users in system: <b>{num_users}</b>"
         message = [title, info_1, f"<i>[{reg_list}]</i>", info_2]
