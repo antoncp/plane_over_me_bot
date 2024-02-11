@@ -28,6 +28,8 @@ class Settings:
 
 settings = Settings()
 print(settings.ADMIN_ID)
+print(settings.DEBUG)
+print(settings.TEL_TOKEN)
 
 
 # Custom logging handler (sends errors alerts via Telegram)
