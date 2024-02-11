@@ -22,14 +22,14 @@ class Settings:
     MAP_KEY = os.getenv(f"MAP_KEY{MODE}")
     TEL_LOG = os.getenv("TEL_LOG")
     ADMIN_ID = os.getenv("ADMIN_ID")
+    INSPECT_ID = os.getenv("INSPECT_ID")
     BASE_LATITUDE = os.getenv("BASE_LATITUDE")
     BASE_LONGITUDE = os.getenv("BASE_LONGITUDE")
 
 
 settings = Settings()
-print(settings.ADMIN_ID)
+print(settings.INSPECT_ID)
 print(settings.DEBUG)
-print(settings.TEL_TOKEN)
 
 
 # Custom logging handler (sends errors alerts via Telegram)
