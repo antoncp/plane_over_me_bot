@@ -1,13 +1,9 @@
 import logging.config
 import os
-from threading import Event, Thread
 
 import requests
 import yaml
 from dotenv import load_dotenv
-from flask import Flask
-
-import planes
 
 load_dotenv()
 
@@ -48,33 +44,3 @@ with open("logging_config.yaml", "rt") as f:
 logging.config.dictConfig(log_config)
 logger = logging.getLogger("special_debug")
 tel_logger = logging.getLogger("telegram")
-
-
-# Flask health check endpoint
-app = Flask(__name__)
-shutdown_event = Event()
-
-
-@app.route("/", methods=["GET"])
-def webhook():
-    if not shutdown_event.is_set():
-        title = "Planes bot is up"
-        num_planes = len(planes.AirCraft.aircrafts)
-        num_users = len(planes.User.users.keys())
-        reg_list = " no dedicated planes "
-        if num_planes:
-            reg_planes = []
-            for plane in planes.AirCraft.aircrafts:
-                reg_planes.append(plane.reg)
-            reg_list = ", ".join(set(reg_planes))
-        info_1 = f"There are <b>{num_planes} planes</b> in system now:"
-        info_2 = f"Active users in system: <b>{num_users}</b>"
-        message = [title, info_1, f"<i>[{reg_list}]</i>", info_2]
-        return "<br><br>".join(message)
-
-
-def run_flask_app():
-    app.run(host="0.0.0.0", port=1300)
-
-
-flask_thread = Thread(target=run_flask_app)

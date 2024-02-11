@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Check out the repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -32,14 +32,14 @@ jobs:
         MAP_KEY_LOCAL: ${{ secrets.MAP_KEY_LOCAL }}
       run: |
         flake8 .
-        python tests.py 
+        pytest
 
   deploy:
       runs-on: ubuntu-latest
       needs: tests
       steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Copy code via ssh
         uses: appleboy/scp-action@master
         with:

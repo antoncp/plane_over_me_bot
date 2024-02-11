@@ -3,7 +3,8 @@ from telebot.types import (InlineKeyboardButton, InlineKeyboardMarkup,
                            KeyboardButton, ReplyKeyboardMarkup)
 
 import planes
-from config import flask_thread, logger, settings, shutdown_event
+from config import logger, settings
+from health_endpoint import flask_thread, shutdown_event
 
 bot = telebot.TeleBot(settings.TEL_TOKEN)
 
