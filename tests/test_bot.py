@@ -1,7 +1,7 @@
 import pytest
 
 from config import settings
-from main import start, handle_text
+from main import handle_text, start
 
 
 @pytest.fixture
