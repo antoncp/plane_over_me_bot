@@ -13,6 +13,7 @@ print("Photos test successful")
 
 
 class TestTelebot(unittest.TestCase):
+    """Basic tests for the bot"""
     @classmethod
     def setUpClass(cls):
         pass
