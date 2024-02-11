@@ -10,22 +10,8 @@ bot = telebot.TeleBot(settings.TEL_TOKEN)
 bot.set_my_commands([])
 
 
-def send_text(*args):
-    bot.send_message(
-        args[0],
-        args[1],
-        reply_markup=args[2] if args[2] else None,
-        parse_mode="Markdown",
-    )
-
-
 @bot.message_handler(commands=["start"])
 def start(message):
-    answer = start_main(message)
-    send_text(*answer)
-
-
-def start_main(message):
     keyboard = ReplyKeyboardMarkup(
         row_width=2, resize_keyboard=True, one_time_keyboard=True
     )
@@ -45,8 +31,9 @@ def start_main(message):
         "location without sending new one (e.g. for requests from "
         "non-mobile Telegram)"
     )
-
-    return message.chat.id, text, keyboard
+    return bot.send_message(
+        message.chat.id, text, reply_markup=keyboard, parse_mode="Markdown"
+    )
 
 
 @bot.message_handler(content_types=["location"])

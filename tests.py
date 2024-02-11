@@ -1,7 +1,9 @@
-from telebot.types import Chat, Message, User
+import unittest
+from unittest.mock import Mock
 
-import main
 import planes
+from config import settings
+from main import start
 
 # Tests fetching planes photo from jetphotos.com
 assert (
@@ -9,25 +11,32 @@ assert (
 ), f"Wrong type: {pl}"
 print("Photos test successful")
 
-# Tests start message to the bot
-intro_message = Message(
-    message_id=3475,
-    from_user=User(id=48178866, is_bot=False, first_name="Anton"),
-    date=1690915163,
-    chat=Chat(id=48178866, type="private"),
-    content_type="text",
-    options=[],
-    json_string={
-        "message_id": 3475,
-        "from": {
-            "id": 48178866,
-            "is_bot": False,
-            "first_name": "Anton",
-            "username": "anton99",
-            "language_code": "ru",
-        },
-    },
-)
 
-assert main.start_main(intro_message)[1].startswith("Welcome to the")
-print("Start message test successful")
+class TestTelebot(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        pass
+
+    @classmethod
+    def tearDownClass(cls):
+        pass
+
+    def setUp(self):
+        self.message = Mock()
+        self.message.chat.id = settings.ADMIN_ID
+        self.message.from_user.id = settings.ADMIN_ID
+
+    def tearDown(self):
+        pass
+
+    def test_start_command(self):
+        """Tests start message of the bot"""
+        self.assertTrue(
+            start(self.message).text.startswith(
+                "Welcome to the Plane_over_me_bot."
+            )
+        )
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
