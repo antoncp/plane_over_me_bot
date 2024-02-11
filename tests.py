@@ -24,8 +24,8 @@ class TestTelebot(unittest.TestCase):
 
     def setUp(self):
         self.message = Mock()
-        self.message.chat.id = settings.ADMIN_ID
-        self.message.from_user.id = settings.ADMIN_ID
+        self.message.chat.id = int(settings.ADMIN_ID)
+        self.message.from_user.id = int(settings.ADMIN_ID)
 
     def tearDown(self):
         pass
