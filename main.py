@@ -160,12 +160,11 @@ def handle_text(message):
     if message.text == "Last location":
         user = planes.user_details(message.chat.id)
         if not user and not settings.DEBUG:
-            bot.send_message(
+            return bot.send_message(
                 message.chat.id,
                 "There is no last position in system. "
                 "Please resend your location.",
             )
-            return
         if not user and settings.DEBUG:
             latitude = settings.BASE_LATITUDE
             longitude = settings.BASE_LONGITUDE

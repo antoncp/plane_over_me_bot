@@ -1,7 +1,7 @@
 import pytest
 
 from config import settings
-from main import start
+from main import start, handle_text
 
 
 @pytest.fixture
@@ -17,3 +17,12 @@ def test_start_command(message):
     assert start(message).text.startswith(
         "Welcome to the Plane_over_me_bot."
     ), "Wrong start message of the bot"
+
+
+def test_last_location_with_no_location(message):
+    """Tests Last location function with no last location position"""
+    message.text = "Last location"
+    settings.DEBUG = False
+    assert handle_text(message).text.startswith(
+        "There is no last position in system"
+    ), "Last location error message"
