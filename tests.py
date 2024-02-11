@@ -5,6 +5,8 @@ import planes
 from config import settings
 from main import start
 
+settings.DEBUG = True
+
 # Tests fetching planes photo from jetphotos.com
 assert (
     type(pl := planes.get_plane_photo("EI-FPH")[2]) == str
