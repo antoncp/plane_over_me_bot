@@ -27,6 +27,7 @@ class Settings:
 
 
 settings = Settings()
+print(settings.ADMIN_ID)
 
 
 # Custom logging handler (sends errors alerts via Telegram)
