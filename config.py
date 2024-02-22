@@ -27,12 +27,15 @@ settings = Settings()
 
 # Custom logging handler (sends errors alerts via Telegram)
 class CustomHTTPHandler(logging.Handler):
-    def __init__(self, url=None):
+    def __init__(self):
         super().__init__()
         self.url = f"https://api.telegram.org/{settings.TEL_LOG}/sendMessage"
 
     def emit(self, record):
-        data = {"chat_id": settings.ADMIN_ID, "text": record.getMessage()}
+        data = {
+            "chat_id": settings.ADMIN_ID,
+            "text": f"PLANES bot: {record.getMessage()}",
+        }
         response = requests.get(self.url, data=data)
         if response.status_code != 200:
             logging.error(f"Error sending message: {response.text}")
