@@ -92,23 +92,31 @@ def show_plane(call):
         bot.send_message(call.message.chat.id, "Data is outdated")
         bot.answer_callback_query(callback_query_id=call.id)
         return
-    (
-        image,
-        plane_model,
-        date_img,
-        place_img,
-        author_img,
-        url,
-    ) = planes.get_plane_photo(plane.reg)
-    plane_selector = call.message.reply_markup
-    response = bot.edit_message_media(
-        media=telebot.types.InputMediaPhoto(image),
-        chat_id=call.message.chat.id,
-        message_id=call.message.message_id,
-    )
-    plane_pic = response.photo[0].file_id
-    update_plane_pic = planes.plane_photo_details(plane.reg)
-    update_plane_pic.image = plane_pic
+    try:
+        (
+            image,
+            plane_model,
+            date_img,
+            place_img,
+            author_img,
+            url,
+        ) = planes.get_plane_photo(plane.reg)
+        plane_selector = call.message.reply_markup
+        response = bot.edit_message_media(
+            media=telebot.types.InputMediaPhoto(image),
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+        )
+        plane_pic = response.photo[0].file_id
+        update_plane_pic = planes.plane_photo_details(plane.reg)
+        update_plane_pic.image = plane_pic
+    except Exception as e:
+        logger.error(f"ERROR updating plane: {e}")
+        bot.send_message(
+            call.message.chat.id, "Failed to load information on this aircraft"
+        )
+        bot.answer_callback_query(callback_query_id=call.id)
+        return
     if "Show the map" not in str(call.message):
         plane_selector.add(
             InlineKeyboardButton(
