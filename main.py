@@ -186,6 +186,10 @@ def handle_text(message):
         location(message, latitude=latitude, longitude=longitude)
 
 
+def test():
+    print(type(db))
+
+
 if __name__ == "__main__":
     flask_thread.start()
     try:
