@@ -46,7 +46,7 @@ jobs:
         with:
           filters: |
             requirements:
-                - '.github/requirements.txt'
+                - 'requirements.txt'
 
       - name: Copy code via ssh
         uses: appleboy/scp-action@master
