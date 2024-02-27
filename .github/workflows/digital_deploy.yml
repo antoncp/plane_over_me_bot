@@ -53,22 +53,18 @@ jobs:
           target: "plane_over_me_bot"
 
       - name: Check for changes in requirements.txt
-        id: check_changes
-        run: |
-          if git diff --quiet HEAD~1 HEAD requirements.txt; then
-            echo "No changes in requirements.txt"
-            echo "::set-output name=changes::false"
-          else
-            echo "Changes detected in requirements.txt"
-            echo "::set-output name=changes::true"
-          fi
+        uses: technote-space/get-diff-action@v6
+        id: git-diff
+        with:
+          FILES: |
+            requirements.txt
 
       - name: Print changes
         run: 
-          echo ${{ steps.check_changes.outputs.changes }}
+          echo ${{ steps.git-diff.outputs.diff }}
 
       - name: Rebuild Docker container if necessary
-        if: ${{ steps.check_changes.outputs.changes }} == 'true'
+        if: env.GIT_DIFF
         run: |
           echo "Changes coming"
 
