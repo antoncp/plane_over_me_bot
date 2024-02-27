@@ -8,6 +8,9 @@ on:
     branches:
       - main
 
+env:
+  REBUILT: true
+
 jobs:
   tests:
     runs-on: ubuntu-latest
@@ -37,16 +40,10 @@ jobs:
   deploy:
       runs-on: ubuntu-latest
       needs: tests
-      outputs:
-        output1: ${{ steps.filter.outputs.requirements }}
       steps:
-      - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          filters: |
-            requirements:
-                - 'requirements.txt'
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Copy code via ssh
         uses: appleboy/scp-action@master
@@ -59,7 +56,7 @@ jobs:
           target: "plane_over_me_bot"
 
       - name: Rebuild Docker image and container
-        if: steps.filter.outputs.requirements == 'true'
+        if: env.REBUILT
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
@@ -74,7 +71,7 @@ jobs:
 
 
       - name: Start Docker container without rebuild
-        if: steps.filter.outputs.requirements != 'true'
+        if: env.REBUILT != 'true'
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
