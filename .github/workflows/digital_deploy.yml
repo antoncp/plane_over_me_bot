@@ -38,7 +38,7 @@ jobs:
       runs-on: ubuntu-latest
       needs: tests
       outputs:
-        output1: ${{ steps.filter.outputs.workflows }}
+        output1: ${{ steps.filter.outputs.requirements }}
       steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v2
@@ -58,17 +58,23 @@ jobs:
           source: "."
           target: "plane_over_me_bot"
 
-      - name: Rebuild Docker
+      - name: Rebuild Docker image and container
         if: steps.filter.outputs.requirements == 'true'
-        run: |
-          echo "Changes is coming"
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            cd plane_over_me_bot
+            sudo docker build -t plane_over_me_bot:latest .
+            sudo docker rm -f planes
+            sudo docker run --name planes -dp 1300:1300 --restart always -v ~/plane_over_me_bot:/plane_over_me_bot plane_over_me_bot:latest
 
-      - name: No rebuild
+
+      - name: Start Docker container without rebuild
         if: steps.filter.outputs.requirements != 'true'
-        run: |
-          echo "No changes"
-
-      - name: Executing remote ssh commands to deploy
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
