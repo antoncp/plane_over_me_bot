@@ -55,7 +55,7 @@ jobs:
       - name: Check for changes in requirements.txt
         id: check_changes
         run: |
-          if git diff --quiet HEAD^ HEAD requirements.txt; then
+          if git diff --quiet HEAD~1 HEAD requirements.txt; then
             echo "No changes in requirements.txt"
             echo "::set-output name=changes::false"
           else
@@ -63,8 +63,12 @@ jobs:
             echo "::set-output name=changes::true"
           fi
 
+      - name: Print changes
+        run: 
+          echo ${{ steps.check_changes.outputs.changes }}
+
       - name: Rebuild Docker container if necessary
-        if: steps.check_changes.outputs.changes == 'true'
+        if: ${{ steps.check_changes.outputs.changes }} == 'true'
         run: |
           echo "Changes coming"
 
