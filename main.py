@@ -2,6 +2,7 @@ import telebot
 from telebot.types import (InlineKeyboardButton, InlineKeyboardMarkup,
                            KeyboardButton, ReplyKeyboardMarkup)
 
+import db
 import planes
 from config import logger, settings
 from health_endpoint import flask_thread, shutdown_event

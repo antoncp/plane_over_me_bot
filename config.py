@@ -20,6 +20,7 @@ class Settings:
     ADMIN_ID = os.getenv("ADMIN_ID")
     BASE_LATITUDE = os.getenv("BASE_LATITUDE")
     BASE_LONGITUDE = os.getenv("BASE_LONGITUDE")
+    ATLAS_MONGO = os.getenv("ATLAS_MONGO")
 
 
 settings = Settings()
@@ -46,4 +47,3 @@ with open("logging_config.yaml", "rt") as f:
     log_config = yaml.safe_load(f.read())
 logging.config.dictConfig(log_config)
 logger = logging.getLogger("special_debug")
-tel_logger = logging.getLogger("telegram")
