@@ -1,6 +1,7 @@
 import telebot
-from telebot.types import (InlineKeyboardButton, InlineKeyboardMarkup,
-                           KeyboardButton, ReplyKeyboardMarkup)
+from telebot.types import (CallbackQuery, InlineKeyboardButton,
+                           InlineKeyboardMarkup, KeyboardButton, Message,
+                           ReplyKeyboardMarkup)
 
 import planes
 from config import logger, settings
@@ -12,7 +13,7 @@ bot.set_my_commands([])
 
 
 @bot.message_handler(commands=["start"])
-def start(message):
+def start(message: Message) -> Message:
     keyboard = ReplyKeyboardMarkup(
         row_width=2, resize_keyboard=True, one_time_keyboard=True
     )
@@ -38,7 +39,7 @@ def start(message):
 
 
 @bot.message_handler(content_types=["location"])
-def location(message, **kwargs):
+def location(message: Message, **kwargs) -> None:
     if message.location is not None or kwargs.get("latitude"):
         if kwargs.get("latitude"):
             lat = kwargs.get("latitude")
@@ -87,7 +88,7 @@ def location(message, **kwargs):
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("pl"))
-def show_plane(call):
+def show_plane(call: CallbackQuery) -> None:
     plane = planes.plane_details(call.data.split()[1])
     if not plane:
         bot.send_message(call.message.chat.id, "Data is outdated")
@@ -142,7 +143,7 @@ def show_plane(call):
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("last"))
-def show_map_again(call):
+def show_map_again(call: CallbackQuery) -> None:
     user = planes.user_details(call.message.chat.id)
     if not user or not user.last_map.get(call.message.message_id):
         bot.send_message(call.message.chat.id, "Data is outdated")
@@ -168,7 +169,7 @@ def show_map_again(call):
 
 
 @bot.message_handler(content_types=["text"])
-def handle_text(message):
+def handle_text(message: Message) -> None:
     if message.text == "Last location":
         user = planes.user_details(message.chat.id)
         if not user and not settings.DEBUG:

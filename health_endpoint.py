@@ -10,7 +10,7 @@ shutdown_event = Event()
 
 
 @app.route("/", methods=["GET"])
-def webhook():
+def webhook() -> str:
     if not shutdown_event.is_set():
         title = "Planes bot is up"
         num_planes = len(AirCraft.aircrafts)

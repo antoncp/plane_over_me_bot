@@ -56,7 +56,7 @@ jobs:
           target: "plane_over_me_bot"
 
       - name: Rebuild Docker image and container
-        if: env.REBUILT
+        if: env.REBUILT == 'true'
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}

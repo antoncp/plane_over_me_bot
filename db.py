@@ -20,7 +20,6 @@ def save_user(user: dict) -> Optional[int]:
 
 def read_user(user_id: int) -> Optional[dict]:
     user = base.bots.planes.find_one({"id": user_id})
-    print(type(user))
     logger.debug(f"User data was retrieved from Mongo: {user}")
     if user:
         return user

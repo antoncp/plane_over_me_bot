@@ -1,8 +1,10 @@
 from dataclasses import astuple, dataclass
+from typing import Dict, Generator, Optional
 
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+from pandas.core.frame import DataFrame
 
 from config import logger, settings
 from db import read_user, save_coordinates, save_user
@@ -68,7 +70,7 @@ class AirPhoto:
     url: str
 
 
-def get_plane_list(lat, lon):
+def get_plane_list(lat: int, lon: int) -> Dict:
     url = (
         "https://adsbx-flight-sim-traffic.p.rapidapi.com/"
         f"api/aircraft/json/lat/{lat}/lon/{lon}/dist/25/"
@@ -80,7 +82,7 @@ def get_plane_list(lat, lon):
     return requests.request("GET", url, headers=headers).json()
 
 
-def sort_plane_list(plane_list):
+def sort_plane_list(plane_list: Dict) -> DataFrame:
     list = pd.DataFrame(plane_list["ac"])
     list = list[
         (list["alt"] != "")
@@ -109,7 +111,7 @@ def sort_plane_list(plane_list):
     return list
 
 
-def plane_map(lat, lon, list):
+def plane_map(lat: int, lon: int, list: DataFrame) -> str:
     planes = (
         "https://maps.googleapis.com/maps/api/staticmap?&size=700x700"
         f"&maptype=satellite&markers=color:gray%7Clabel:0%7C{lat},{lon}&"
@@ -122,7 +124,9 @@ def plane_map(lat, lon, list):
     return map
 
 
-def get_plane_selector(list, prefix):
+def get_plane_selector(
+    list: DataFrame, prefix: str
+) -> Generator[str, None, None]:
     for i in range(min(5, list.shape[0])):
         model = list.iloc[i]["type"]
         reg = list.iloc[i]["reg"]
@@ -141,7 +145,7 @@ def get_plane_selector(list, prefix):
         yield f"({i+1}) {dist} km / {model} / {alt} m / {spd} km/h", id
 
 
-def get_plane_photo(reg):
+def get_plane_photo(reg: str) -> tuple:
     saved_plane = plane_photo_details(reg)
     if saved_plane:
         return astuple(saved_plane)
@@ -174,7 +178,7 @@ def get_plane_photo(reg):
     return astuple(plane)
 
 
-def plane_details(id):
+def plane_details(id: str) -> Optional[AirCraft]:
     aircraft = next(
         (obj for obj in globals()["AirCraft"].aircrafts if obj.id == id),
         None,
@@ -182,12 +186,12 @@ def plane_details(id):
     return aircraft
 
 
-def plane_photo_details(reg):
+def plane_photo_details(reg: str) -> Optional[AirPhoto]:
     plane = globals()["AirCraft"].airphotos.get(reg)
     return plane
 
 
-def user_details(id):
+def user_details(id: int) -> Optional[User]:
     user = globals()["User"].users.get(id)
     if not user:
         user = read_user(id)

@@ -12,18 +12,18 @@ MODE = "_LOCAL" if os.getenv("DEBUG") == "True" else ""
 
 # Environment variables set up
 class Settings:
-    DEBUG = os.getenv("DEBUG") == "True"
-    TEL_TOKEN = os.getenv(f"TEL_TOKEN{MODE}")
-    RAPID_API = os.getenv(f"RAPID_API_TOKEN{MODE}")
-    MAP_KEY = os.getenv(f"MAP_KEY{MODE}")
-    TEL_LOG = os.getenv("TEL_LOG")
-    ADMIN_ID = os.getenv("ADMIN_ID")
-    BASE_LATITUDE = os.getenv("BASE_LATITUDE")
-    BASE_LONGITUDE = os.getenv("BASE_LONGITUDE")
-    ATLAS_MONGO = os.getenv("ATLAS_MONGO")
+    DEBUG: bool = os.getenv("DEBUG") == "True"
+    TEL_TOKEN: str = os.getenv(f"TEL_TOKEN{MODE}")
+    RAPID_API: str = os.getenv(f"RAPID_API_TOKEN{MODE}")
+    MAP_KEY: str = os.getenv(f"MAP_KEY{MODE}")
+    TEL_LOG: str = os.getenv("TEL_LOG")
+    ADMIN_ID: int = int(os.getenv("ADMIN_ID"))
+    BASE_LATITUDE: int = os.getenv("BASE_LATITUDE")
+    BASE_LONGITUDE: int = os.getenv("BASE_LONGITUDE")
+    ATLAS_MONGO: str = os.getenv("ATLAS_MONGO")
 
 
-settings = Settings()
+settings: Settings = Settings()
 
 
 # Custom logging handler (sends errors alerts via Telegram)
