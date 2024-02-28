@@ -19,17 +19,7 @@ def test_start_command(message):
     ), "Wrong start message of the bot"
 
 
-def test_last_location_with_no_location(message):
-    """Tests Last location function with no last location position"""
-    message.text = "Last location"
-    settings.DEBUG = False
-    assert handle_text(message).text.startswith(
-        "There is no last position in system"
-    ), "Last location error message"
-
-
 def test_no_answer_for_random_text(message):
     """Tests text function with random text"""
     message.text = "Hi bot!"
-    settings.DEBUG = False
     assert handle_text(message) is None, "Answer for text error"

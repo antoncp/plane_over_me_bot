@@ -13,7 +13,7 @@ handlers:
     formatter: default
 
   all:
-    level: INFO
+    level: WARNING
     class: logging.FileHandler
     filename: logs/all.log
     formatter: default
@@ -32,7 +32,7 @@ handlers:
 loggers:
   special_debug:
     level: DEBUG
-    handlers: [special]
+    handlers: [special, default]
 
   telegram:
     level: ERROR
@@ -40,4 +40,4 @@ loggers:
 
 root:
   formatter: default
-  handlers: [telegram, all, default]
+  handlers: [telegram, all]

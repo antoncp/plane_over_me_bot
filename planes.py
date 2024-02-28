@@ -5,6 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from config import logger, settings
+from db import read_user, save_coordinates, save_user
 
 RAPID_API = settings.RAPID_API
 MAP_KEY = settings.MAP_KEY
@@ -32,13 +33,29 @@ class AirCraft:
 class User:
     users = dict()
 
-    def __init__(self, id, lat=None, lon=None):
+    def __init__(self, id, lat=None, lon=None, saved=False):
         self.id = id
         self.lat = lat
         self.lon = lon
+        self.saved = saved
         self.last_map = {}
         self.caption = {}
         User.users[self.id] = self
+
+    def save_to_db(self):
+        user = read_user(self.id)
+        if not user:
+            user_to_db = self.__dict__
+            del user_to_db["last_map"]
+            del user_to_db["caption"]
+            save_user(user_to_db)
+            self.saved = True
+
+    def update_coordinates(self, lat, lon):
+        if self.lat != lat or self.lon != lon:
+            self.lat = lat
+            self.lon = lon
+            save_coordinates(self.id, lat, lon)
 
 
 @dataclass
@@ -172,4 +189,10 @@ def plane_photo_details(reg):
 
 def user_details(id):
     user = globals()["User"].users.get(id)
+    if not user:
+        user = read_user(id)
+        if user:
+            user = User(
+                user.get("id"), user.get("lat"), user.get("lon"), saved=True
+            )
     return user

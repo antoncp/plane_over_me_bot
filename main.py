@@ -2,7 +2,6 @@ import telebot
 from telebot.types import (InlineKeyboardButton, InlineKeyboardMarkup,
                            KeyboardButton, ReplyKeyboardMarkup)
 
-import db
 import planes
 from config import logger, settings
 from health_endpoint import flask_thread, shutdown_event
@@ -49,8 +48,7 @@ def location(message, **kwargs):
             lon = message.location.longitude
         user = planes.user_details(message.chat.id)
         if user:
-            user.lat = lat
-            user.lon = lon
+            user.update_coordinates(lat, lon)
         else:
             user = planes.User(message.chat.id, lat, lon)
         plane_list = planes.get_plane_list(lat, lon)
@@ -84,6 +82,8 @@ def location(message, **kwargs):
         )
         user.last_map[sending.message_id] = sending.photo[0].file_id
         user.caption[sending.message_id] = caption
+        if not user.saved:
+            user.save_to_db()
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("pl"))
@@ -177,17 +177,9 @@ def handle_text(message):
                 "There is no last position in system. "
                 "Please resend your location.",
             )
-        if not user and settings.DEBUG:
-            latitude = settings.BASE_LATITUDE
-            longitude = settings.BASE_LONGITUDE
-        else:
-            latitude = user.lat
-            longitude = user.lon
+        latitude = user.lat
+        longitude = user.lon
         location(message, latitude=latitude, longitude=longitude)
-
-
-def test():
-    print(type(db))
 
 
 if __name__ == "__main__":
@@ -195,5 +187,5 @@ if __name__ == "__main__":
     try:
         bot.infinity_polling(timeout=10, long_polling_timeout=5)
     except Exception as e:
-        logger.error(f"Error in Telegram bot: {e}")
+        logger.error(f"Error in the Telegram bot: {e}")
         shutdown_event.set()
