@@ -207,7 +207,6 @@ def plane_photo_details(reg: str) -> Optional[AirPhoto]:
 
 def user_details(id: int) -> Optional[User]:
     user = User.users.get(id)
-    print(User.users)
     if not user:
         user = read_user(id)
         if user:

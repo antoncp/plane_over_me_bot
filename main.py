@@ -23,20 +23,11 @@ def start(message: Message) -> Message:
         KeyboardButton(text="Planes", request_location=True),
         KeyboardButton(text="Last location"),
     )
-    text = (
-        "Welcome to the *Plane_over_me_bot*. Provide your location via "
-        "Telegram and get instant picture about nearest planes in the air. "
-        "After getting the map with planes' marks you can examine the "
-        "concrete plane by pushing the button with its parameters _(distance "
-        "from you / plane model / plane altitude / plane speed)_.\n\n"
-        "Use bot buttons, integrated to the keyboard:\n\n"
-        "*Planes* - up to 5 planes around you, higher than "
-        "100 meters\n\n*Last location* - planes in you last provided "
-        "location without sending new one (e.g. for requests from "
-        "non-mobile Telegram)"
-    )
     return bot.send_message(
-        message.chat.id, text, reply_markup=keyboard, parse_mode="Markdown"
+        message.chat.id,
+        REMARKS["start"],
+        reply_markup=keyboard,
+        parse_mode="Markdown",
     )
 
 
@@ -56,10 +47,7 @@ def location(message: Message, **kwargs) -> None:
             user = planes.User(message.chat.id, lat, lon)
         plane_list = planes.get_plane_list(lat, lon)
         if not plane_list:
-            return bot.send_message(
-                message.chat.id,
-                "ADS-B information about planes temporarily unavailable",
-            )
+            return bot.send_message(message.chat.id, REMARKS["no_ADS"])
         sort_list = planes.sort_plane_list(plane_list)
         num_total_planes = sort_list.shape[0]
         num_planes_on_map = min(5, sort_list.shape[0])
@@ -97,7 +85,7 @@ def location(message: Message, **kwargs) -> None:
 def show_plane(call: CallbackQuery) -> None:
     plane = planes.plane_details(call.data.split()[1])
     if not plane:
-        bot.send_message(call.message.chat.id, "Data is outdated")
+        bot.send_message(call.message.chat.id, REMARKS["outdated"])
         bot.answer_callback_query(callback_query_id=call.id)
         return
     (
@@ -126,12 +114,20 @@ def show_plane(call: CallbackQuery) -> None:
         )
     bot.edit_message_caption(
         caption=(
-            f"({plane.order}) {plane_model} `({plane.reg})`\n\n"
-            f"*{plane.alt}* m / *{plane.spd}* km/h\n"
-            f"_Distance from you: {plane.dist} km_\n\n"
-            f"{plane.start}\n*>>>*\n{plane.end}\n\n"
-            f"_Photo credits: {date_img}, {clean_markdown(place_img)},"
-            f" {clean_markdown(author_img)} {url}_"
+            REMARKS["plane_details"].format(
+                plane.order,
+                plane_model,
+                plane.reg,
+                plane.alt,
+                plane.spd,
+                plane.dist,
+                plane.start,
+                plane.end,
+                date_img,
+                clean_markdown(place_img),
+                clean_markdown(author_img),
+                url,
+            )
         ),
         chat_id=call.message.chat.id,
         message_id=call.message.message_id,
@@ -145,7 +141,7 @@ def show_plane(call: CallbackQuery) -> None:
 def show_map_again(call: CallbackQuery) -> None:
     user = planes.user_details(call.message.chat.id)
     if not user or not user.last_map.get(call.message.message_id):
-        bot.send_message(call.message.chat.id, "Data is outdated")
+        bot.send_message(call.message.chat.id, REMARKS["outdated"])
         bot.answer_callback_query(callback_query_id=call.id)
         return
     bot.edit_message_media(
@@ -172,11 +168,7 @@ def handle_text(message: Message) -> None:
     if message.text == "Last location":
         user = planes.user_details(message.chat.id)
         if not user:
-            return bot.send_message(
-                message.chat.id,
-                "There is no last position in system. "
-                "Please resend your location.",
-            )
+            return bot.send_message(message.chat.id, REMARKS["no_location"])
         latitude = user.lat
         longitude = user.lon
         location(message, latitude=latitude, longitude=longitude)

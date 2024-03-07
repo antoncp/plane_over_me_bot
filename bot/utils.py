@@ -46,7 +46,7 @@ def timing_log(extra_log: bool = False, min_time: float = 0.1) -> Callable:
             elapsed_time = end_time - start_time
             if elapsed_time > min_time:
                 log = True
-                log_message = f"({func.__name__}): {elapsed_time:.4f} seconds."
+                log_message = f"({func.__name__}): {elapsed_time:.2f} seconds."
             else:
                 log = False
             if extra_log and isinstance(result, tuple) and len(result) == 2:
