@@ -9,7 +9,7 @@ from pandas.core.frame import DataFrame
 from config import logger, settings
 
 from .db import read_user, save_coordinates, save_user
-from .utils import timing
+from .utils import timing_log
 
 RAPID_API = settings.RAPID_API
 MAP_KEY = settings.MAP_KEY
@@ -47,10 +47,10 @@ class User:
         User.users[self.id] = self
 
     def save_to_db(self):
-        user = read_user(self.id)
-        if not user:
+        record_user = read_user(self.id)
+        if not record_user:
             self.saved = True
-            user_to_db = self.__dict__
+            user_to_db = dict(self.__dict__)
             del user_to_db["last_map"]
             del user_to_db["caption"]
             del user_to_db["saved"]
@@ -73,7 +73,7 @@ class AirPhoto:
     url: str
 
 
-@timing
+@timing_log()
 def get_plane_list(lat: int, lon: int) -> Dict:
     url = (
         "https://adsbx-flight-sim-traffic.p.rapidapi.com/"
@@ -83,7 +83,16 @@ def get_plane_list(lat: int, lon: int) -> Dict:
         "X-RapidAPI-Key": RAPID_API,
         "X-RapidAPI-Host": "adsbx-flight-sim-traffic.p.rapidapi.com",
     }
-    return requests.request("GET", url, headers=headers).json()
+    try:
+        response = requests.get(url, headers=headers, timeout=5)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.Timeout:
+        logger.warning("Timeout on request to RapidAPI")
+        return None
+    except requests.exceptions.RequestException as e:
+        logger.warning(f"Request to RapidAPI failed: {e}")
+        return None
 
 
 def sort_plane_list(plane_list: Dict) -> DataFrame:
@@ -149,7 +158,7 @@ def get_plane_selector(
         yield f"({i+1}) {dist} km / {model} / {alt} m / {spd} km/h", id
 
 
-@timing
+@timing_log(extra_log=True)
 def get_plane_photo(reg: str) -> tuple:
     saved_plane = plane_photo_details(reg)
     if saved_plane:
@@ -177,10 +186,10 @@ def get_plane_photo(reg: str) -> tuple:
         "section--info2-wrapper > ul:nth-child(2) > li > span.result__"
         "infoListText.result__infoListText--photographer > a"
     )[0].text
-    logger.debug(f"Request to {url}")
+    extra_log = {"Requested URL": url, "Author": author_img}
     plane = AirPhoto(image, plane_model, date_img, place_img, author_img, url)
     AirCraft.airphotos[reg] = plane
-    return astuple(plane)
+    return astuple(plane), extra_log
 
 
 def plane_details(id: str) -> Optional[AirCraft]:
@@ -192,12 +201,13 @@ def plane_details(id: str) -> Optional[AirCraft]:
 
 
 def plane_photo_details(reg: str) -> Optional[AirPhoto]:
-    plane = globals()["AirCraft"].airphotos.get(reg)
+    plane = AirCraft.airphotos.get(reg)
     return plane
 
 
 def user_details(id: int) -> Optional[User]:
-    user = globals()["User"].users.get(id)
+    user = User.users.get(id)
+    print(User.users)
     if not user:
         user = read_user(id)
         if user:

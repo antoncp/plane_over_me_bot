@@ -55,6 +55,11 @@ def location(message: Message, **kwargs) -> None:
         else:
             user = planes.User(message.chat.id, lat, lon)
         plane_list = planes.get_plane_list(lat, lon)
+        if not plane_list:
+            return bot.send_message(
+                message.chat.id,
+                "ADS-B information about planes temporarily unavailable",
+            )
         sort_list = planes.sort_plane_list(plane_list)
         num_total_planes = sort_list.shape[0]
         num_planes_on_map = min(5, sort_list.shape[0])
