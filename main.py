@@ -5,6 +5,7 @@ from telebot.types import (CallbackQuery, InlineKeyboardButton,
 
 import bot.planes as planes
 from bot.health_endpoint import flask_thread, shutdown_event
+from bot.utils import clean_markdown
 from config import logger, settings
 
 bot = telebot.TeleBot(settings.TEL_TOKEN)
@@ -124,8 +125,8 @@ def show_plane(call: CallbackQuery) -> None:
             f"*{plane.alt}* m / *{plane.spd}* km/h\n"
             f"_Distance from you: {plane.dist} km_\n\n"
             f"{plane.start}\n*>>>*\n{plane.end}\n\n"
-            f"_Photo credits: {date_img}, {planes.clean_markdown(place_img)},"
-            f" {planes.clean_markdown(author_img)} {url}_"
+            f"_Photo credits: {date_img}, {clean_markdown(place_img)},"
+            f" {clean_markdown(author_img)} {url}_"
         ),
         chat_id=call.message.chat.id,
         message_id=call.message.message_id,

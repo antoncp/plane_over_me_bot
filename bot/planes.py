@@ -1,13 +1,15 @@
 from dataclasses import astuple, dataclass
-from typing import Callable, Dict, Generator, Optional
+from typing import Dict, Generator, Optional
 
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from pandas.core.frame import DataFrame
 
-from bot.db import read_user, save_coordinates, save_user
 from config import logger, settings
+
+from .db import read_user, save_coordinates, save_user
+from .utils import timing
 
 RAPID_API = settings.RAPID_API
 MAP_KEY = settings.MAP_KEY
@@ -71,39 +73,7 @@ class AirPhoto:
     url: str
 
 
-def replace_underscore(func: Callable) -> Callable:
-    def wrapper(*args, **kwargs):
-        result = func(*args, **kwargs)
-
-        if isinstance(result, str):
-            result = result.replace("_", "\\_")
-        elif isinstance(result, list):
-            result = [
-                item.replace("_", "\\_") if isinstance(item, str) else item
-                for item in result
-            ]
-        elif isinstance(result, dict):
-            result = {
-                key: value.replace("_", "\\_")
-                if isinstance(value, str)
-                else value
-                for key, value in result.items()
-            }
-        elif isinstance(result, tuple):
-            result = tuple(
-                item.replace("_", "\\_") if isinstance(item, str) else item
-                for item in result
-            )
-
-        return result
-
-    return wrapper
-
-
-def clean_markdown(text: str) -> str:
-    return text.replace("_", "\\_")
-
-
+@timing
 def get_plane_list(lat: int, lon: int) -> Dict:
     url = (
         "https://adsbx-flight-sim-traffic.p.rapidapi.com/"
@@ -179,6 +149,7 @@ def get_plane_selector(
         yield f"({i+1}) {dist} km / {model} / {alt} m / {spd} km/h", id
 
 
+@timing
 def get_plane_photo(reg: str) -> tuple:
     saved_plane = plane_photo_details(reg)
     if saved_plane:

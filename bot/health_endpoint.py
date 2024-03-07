@@ -2,7 +2,7 @@ from threading import Event, Thread
 
 from flask import Flask
 
-from bot.planes import AirCraft, User
+from .planes import AirCraft, User
 
 # Flask health check endpoint
 app = Flask(__name__)
