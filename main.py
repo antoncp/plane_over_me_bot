@@ -3,11 +3,12 @@ from telebot.types import (CallbackQuery, InlineKeyboardButton,
                            InlineKeyboardMarkup, KeyboardButton, Message,
                            ReplyKeyboardMarkup)
 
-import planes
+import bot.planes as planes
+from bot.health_endpoint import flask_thread, shutdown_event
 from config import logger, settings
-from health_endpoint import flask_thread, shutdown_event
 
 bot = telebot.TeleBot(settings.TEL_TOKEN)
+REMARKS = settings.REMARKS["EN"]
 
 bot.set_my_commands([])
 
@@ -57,9 +58,8 @@ def location(message: Message, **kwargs) -> None:
         num_total_planes = sort_list.shape[0]
         num_planes_on_map = min(5, sort_list.shape[0])
         plane_map = planes.plane_map(lat, lon, sort_list)
-        caption = (
-            f"{num_planes_on_map} planes on the map"
-            f", total in a 80 km circle: {num_total_planes}"
+        caption = REMARKS["map_caption"].format(
+            num_planes_on_map, num_total_planes
         )
         sending = bot.send_photo(message.chat.id, plane_map)
         plane_selector = InlineKeyboardMarkup(row_width=1)
@@ -94,31 +94,23 @@ def show_plane(call: CallbackQuery) -> None:
         bot.send_message(call.message.chat.id, "Data is outdated")
         bot.answer_callback_query(callback_query_id=call.id)
         return
-    try:
-        (
-            image,
-            plane_model,
-            date_img,
-            place_img,
-            author_img,
-            url,
-        ) = planes.get_plane_photo(plane.reg)
-        plane_selector = call.message.reply_markup
-        response = bot.edit_message_media(
-            media=telebot.types.InputMediaPhoto(image),
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-        )
-        plane_pic = response.photo[0].file_id
-        update_plane_pic = planes.plane_photo_details(plane.reg)
-        update_plane_pic.image = plane_pic
-    except Exception as e:
-        logger.error(f"ERROR updating plane: {e}")
-        bot.send_message(
-            call.message.chat.id, "Failed to load information on this aircraft"
-        )
-        bot.answer_callback_query(callback_query_id=call.id)
-        return
+    (
+        image,
+        plane_model,
+        date_img,
+        place_img,
+        author_img,
+        url,
+    ) = planes.get_plane_photo(plane.reg)
+    plane_selector = call.message.reply_markup
+    response = bot.edit_message_media(
+        media=telebot.types.InputMediaPhoto(image),
+        chat_id=call.message.chat.id,
+        message_id=call.message.message_id,
+    )
+    plane_pic = response.photo[0].file_id
+    update_plane_pic = planes.plane_photo_details(plane.reg)
+    update_plane_pic.image = plane_pic
     if "Show the map" not in str(call.message):
         plane_selector.add(
             InlineKeyboardButton(
@@ -132,7 +124,8 @@ def show_plane(call: CallbackQuery) -> None:
             f"*{plane.alt}* m / *{plane.spd}* km/h\n"
             f"_Distance from you: {plane.dist} km_\n\n"
             f"{plane.start}\n*>>>*\n{plane.end}\n\n"
-            f"_Photo credits: {date_img}, {place_img}, {author_img} {url}_"
+            f"_Photo credits: {date_img}, {planes.clean_markdown(place_img)},"
+            f" {planes.clean_markdown(author_img)} {url}_"
         ),
         chat_id=call.message.chat.id,
         message_id=call.message.message_id,
@@ -172,7 +165,7 @@ def show_map_again(call: CallbackQuery) -> None:
 def handle_text(message: Message) -> None:
     if message.text == "Last location":
         user = planes.user_details(message.chat.id)
-        if not user and not settings.DEBUG:
+        if not user:
             return bot.send_message(
                 message.chat.id,
                 "There is no last position in system. "

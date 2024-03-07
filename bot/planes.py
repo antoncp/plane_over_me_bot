@@ -1,13 +1,13 @@
 from dataclasses import astuple, dataclass
-from typing import Dict, Generator, Optional
+from typing import Callable, Dict, Generator, Optional
 
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from pandas.core.frame import DataFrame
 
+from bot.db import read_user, save_coordinates, save_user
 from config import logger, settings
-from db import read_user, save_coordinates, save_user
 
 RAPID_API = settings.RAPID_API
 MAP_KEY = settings.MAP_KEY
@@ -47,11 +47,12 @@ class User:
     def save_to_db(self):
         user = read_user(self.id)
         if not user:
+            self.saved = True
             user_to_db = self.__dict__
             del user_to_db["last_map"]
             del user_to_db["caption"]
+            del user_to_db["saved"]
             save_user(user_to_db)
-            self.saved = True
 
     def update_coordinates(self, lat, lon):
         if self.lat != lat or self.lon != lon:
@@ -68,6 +69,39 @@ class AirPhoto:
     place_img: str
     author_img: str
     url: str
+
+
+def replace_underscore(func: Callable) -> Callable:
+    def wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+
+        if isinstance(result, str):
+            result = result.replace("_", "\\_")
+        elif isinstance(result, list):
+            result = [
+                item.replace("_", "\\_") if isinstance(item, str) else item
+                for item in result
+            ]
+        elif isinstance(result, dict):
+            result = {
+                key: value.replace("_", "\\_")
+                if isinstance(value, str)
+                else value
+                for key, value in result.items()
+            }
+        elif isinstance(result, tuple):
+            result = tuple(
+                item.replace("_", "\\_") if isinstance(item, str) else item
+                for item in result
+            )
+
+        return result
+
+    return wrapper
+
+
+def clean_markdown(text: str) -> str:
+    return text.replace("_", "\\_")
 
 
 def get_plane_list(lat: int, lon: int) -> Dict:

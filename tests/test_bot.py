@@ -9,6 +9,8 @@ def message(mocker):
     message = mocker.Mock()
     message.chat.id = int(settings.ADMIN_ID)
     message.from_user.id = int(settings.ADMIN_ID)
+    message.location.latitude = 52.359752
+    message.location.longitude = 4.894353
     return message
 
 

@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from pymongo import MongoClient
@@ -12,6 +13,7 @@ except Exception as e:
 
 
 def save_user(user: dict) -> Optional[int]:
+    user["timestamp"] = datetime.utcnow()
     new_user = base.bots.planes.insert_one(user)
     logger.debug(f"User data saved to Mongo: {new_user}")
     if new_user:

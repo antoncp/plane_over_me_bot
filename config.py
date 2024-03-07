@@ -21,6 +21,7 @@ class Settings:
     BASE_LATITUDE: int = os.getenv("BASE_LATITUDE")
     BASE_LONGITUDE: int = os.getenv("BASE_LONGITUDE")
     ATLAS_MONGO: str = os.getenv("ATLAS_MONGO")
+    REMARKS: dict = {}
 
 
 settings: Settings = Settings()
@@ -43,7 +44,12 @@ class CustomHTTPHandler(logging.Handler):
 
 
 # Logging configuration
-with open("logging_config.yaml", "rt") as f:
+with open("configs/logging_config.yaml", "rt") as f:
     log_config = yaml.safe_load(f.read())
 logging.config.dictConfig(log_config)
 logger = logging.getLogger("special_debug")
+
+# Loading remarks
+with open("configs/remarks.yaml", "r", encoding="utf-8") as f:
+    remarks_data = yaml.safe_load(f)
+    settings.REMARKS = remarks_data
