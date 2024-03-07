@@ -28,8 +28,10 @@ def read_user(user_id: int) -> Optional[dict]:
 
 
 def save_coordinates(user_id: int, lat: int, lon: int) -> Optional[dict]:
+    timestamp = datetime.utcnow()
     new_coord = base.bots.planes.update_one(
-        {"id": user_id}, {"$set": {"lat": lat, "lon": lon}}
+        {"id": user_id},
+        {"$set": {"lat": lat, "lon": lon, "timestamp": timestamp}},
     )
     logger.debug(f"Coordinates updated: {new_coord}")
     if new_coord:
