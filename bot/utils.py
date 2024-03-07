@@ -37,7 +37,9 @@ def clean_markdown(text: str) -> str:
     return text.replace("_", " ")
 
 
-def timing_log(extra_log: bool = False, min_time: float = 0.1) -> Callable:
+def timing_log(
+    show_return: bool = False, extra_log: bool = False, min_time: float = 0.1
+) -> Callable:
     def decorator(func: Callable) -> Callable:
         def timer(*args, **kwargs):
             start_time = time.time()
@@ -57,7 +59,12 @@ def timing_log(extra_log: bool = False, min_time: float = 0.1) -> Callable:
                     logger.debug(f"{log_message} {extra_message}")
                 return result[0]
             if log:
-                logger.debug(log_message)
+                if result is None:
+                    logger.debug(f"{log_message} Returned: None")
+                elif show_return or isinstance(result, bool):
+                    logger.debug(f"{log_message} Returned: {result}")
+                else:
+                    logger.debug(log_message)
             return result
 
         return timer
