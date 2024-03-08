@@ -6,11 +6,20 @@ formatters:
     format: "%(asctime)s %(levelname)s - %(module)s:%(lineno)d (%(funcName)s) - %(message)s"
     datefmt: "%d-%b-%Y %H:%M:%S"
 
+  timing:
+    format: '%(asctime)s %(message)s'
+    datefmt: '%d-%b-%Y %H:%M:%S'
+
 handlers:
   default:
     level: DEBUG
     class: logging.StreamHandler
     formatter: default
+
+  default_timing:
+    level: DEBUG
+    class: logging.StreamHandler
+    formatter: timing
 
   all:
     level: WARNING
@@ -24,6 +33,12 @@ handlers:
     filename: logs/all.log
     formatter: default
 
+  special_timing:
+    level: DEBUG
+    class: logging.FileHandler
+    filename: logs/all.log
+    formatter: timing
+
   telegram:
     level: CRITICAL
     class: config.CustomHTTPHandler
@@ -33,6 +48,10 @@ loggers:
   special_debug:
     level: DEBUG
     handlers: [special, default]
+
+  timing_debug:
+    level: DEBUG
+    handlers: [special_timing, default_timing]
 
   telegram:
     level: ERROR

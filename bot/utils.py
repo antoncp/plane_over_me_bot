@@ -1,7 +1,7 @@
 import time
 from typing import Callable
 
-from config import logger
+from config import logger_timing
 
 
 def replace_underscore(func: Callable) -> Callable:
@@ -48,7 +48,10 @@ def timing_log(
             elapsed_time = end_time - start_time
             if elapsed_time > min_time:
                 log = True
-                log_message = f"({func.__name__}): {elapsed_time:.2f} seconds."
+                log_message = (
+                    f"({func.__module__}.{func.__name__}): "
+                    f"{elapsed_time:.2f} seconds."
+                )
             else:
                 log = False
             if extra_log and isinstance(result, tuple) and len(result) == 2:
@@ -56,15 +59,15 @@ def timing_log(
                     extra_message = " || ".join(
                         f"{key}: {value}" for key, value in result[1].items()
                     )
-                    logger.debug(f"{log_message} {extra_message}")
+                    logger_timing.debug(f"{log_message} {extra_message}")
                 return result[0]
             if log:
                 if result is None:
-                    logger.debug(f"{log_message} Returned: None")
+                    logger_timing.debug(f"{log_message} Returned: None")
                 elif show_return or isinstance(result, bool):
-                    logger.debug(f"{log_message} Returned: {result}")
+                    logger_timing.debug(f"{log_message} Returned: {result}")
                 else:
-                    logger.debug(log_message)
+                    logger_timing.debug(log_message)
             return result
 
         return timer

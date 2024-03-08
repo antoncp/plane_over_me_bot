@@ -6,9 +6,18 @@ EN:
   \n\nUse bot buttons, integrated to the keyboard:\n\n*Planes* - up to 5 planes around you,
   higher than 100 meters\n\n*Last location* - planes in you last provided location
   without sending new one (e.g. for requests from non-mobile Telegram)."
-  map_caption: "{} planes on the map total in a 80 km circle: {}"
+  map_caption: "{0} planes on the map total in a 80 km circle: {1}"
   no_ADS: ADS-B information about planes temporarily unavailable
   outdated: Data is outdated
   no_location: There is no last position in system. Please resend your location.
-  plane_details: "({}) {} `({})`\n\n*{}* m / *{}* km/h
-  \n_Distance from you: {} km_\n\n{}\n*>>>*\n{}\n\n_Photo credits: {}, {}, {} {}_"
+  plane_details: |
+    ({0}) {1} `({2})`
+
+    *{3}* m / *{4}* km/h
+    _Distance from you: {5} km_
+
+    {6}
+    *>>>*
+    {7}
+
+    _Photo credits: {8}, {9}, {10} {11}_

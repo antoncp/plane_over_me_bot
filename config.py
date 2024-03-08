@@ -48,6 +48,7 @@ with open("configs/logging_config.yaml", "rt") as f:
     log_config = yaml.safe_load(f.read())
 logging.config.dictConfig(log_config)
 logger = logging.getLogger("special_debug")
+logger_timing = logging.getLogger("timing_debug")
 
 # Loading remarks
 with open("configs/remarks.yaml", "r", encoding="utf-8") as f:

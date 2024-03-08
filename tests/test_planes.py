@@ -1,10 +1,8 @@
-import pytest
 from pandas.core.frame import DataFrame
 
 import bot.planes as planes
 
 
-@pytest.mark.skip
 def test_fetch_plane_list():
     lat = 52.359752
     lon = 4.894353
