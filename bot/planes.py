@@ -115,11 +115,7 @@ def sort_plane_list(plane_list: Dict) -> DataFrame:
         },
         errors="ignore",
     )
-    list = list[
-        (list["dst"] < 20)
-        & (list["alt"] > 200)
-        & ~((list["alt"] > 1000) & (list["spd"] < 60))
-    ]
+    list = list[(list["spd"] > 80)]
     list = list.sort_values(by="dst")
     return list
 
