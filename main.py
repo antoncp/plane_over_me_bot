@@ -10,6 +10,7 @@ from config import logger, settings
 
 bot = telebot.TeleBot(settings.TEL_TOKEN)
 REMARKS = settings.REMARKS["EN"]
+BUTTON = settings.REMARKS["EN"]["BUTTONS"]
 
 bot.set_my_commands([])
 
@@ -20,9 +21,10 @@ def start(message: Message) -> Message:
         row_width=2, resize_keyboard=True, one_time_keyboard=True
     )
     keyboard.add(
-        KeyboardButton(text="Planes", request_location=True),
-        KeyboardButton(text="Last location"),
+        KeyboardButton(text=BUTTON["planes"], request_location=True),
+        KeyboardButton(text=BUTTON["last_location"]),
     )
+    bot.set_my_commands([])
     return bot.send_message(
         message.chat.id,
         REMARKS["start"],
@@ -105,10 +107,10 @@ def show_plane(call: CallbackQuery) -> None:
     plane_pic = response.photo[0].file_id
     update_plane_pic = planes.plane_photo_details(plane.reg)
     update_plane_pic.image = plane_pic
-    if "Show the map" not in str(call.message):
+    if BUTTON["show_map"] not in str(call.message):
         plane_selector.add(
             InlineKeyboardButton(
-                text="Show the map",
+                text=BUTTON["show_map"],
                 callback_data=("last"),
             )
         )
@@ -165,7 +167,7 @@ def show_map_again(call: CallbackQuery) -> None:
 
 @bot.message_handler(content_types=["text"])
 def handle_text(message: Message) -> None:
-    if message.text == "Last location":
+    if message.text == BUTTON["last_location"]:
         user = planes.user_details(message.chat.id)
         if not user:
             return bot.send_message(message.chat.id, REMARKS["no_location"])

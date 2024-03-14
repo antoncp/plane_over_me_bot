@@ -21,3 +21,7 @@ EN:
     {7}
 
     _Photo credits: {8}, {9}, {10} {11}_
+  BUTTONS:
+    planes: Planes
+    last_location: Last location
+    show_map: Show the map
