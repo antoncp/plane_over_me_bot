@@ -8,5 +8,5 @@ def test_fetch_plane_list():
     lon = 4.894353
     plane_list = planes.get_plane_list(lat, lon)
     assert isinstance(plane_list, dict), "Failure to get plane list"
-    sort_list = planes.sort_plane_list(plane_list)
+    sort_list = planes.sort_plane_list(plane_list, ground=False)
     assert isinstance(sort_list, DataFrame), "Failure to sort list of planes"
