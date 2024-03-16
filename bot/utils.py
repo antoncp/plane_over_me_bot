@@ -1,7 +1,11 @@
 import time
-from typing import Callable
+from typing import Callable, Optional
 
-from config import logger_timing
+from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
+
+from config import logger, logger_timing, settings
+
+BUTTON = settings.REMARKS["EN"]["BUTTONS"]
 
 
 def replace_underscore(func: Callable) -> Callable:
@@ -17,9 +21,11 @@ def replace_underscore(func: Callable) -> Callable:
             ]
         elif isinstance(result, dict):
             result = {
-                key: value.replace("_", " ")
-                if isinstance(value, str)
-                else value
+                key: (
+                    value.replace("_", " ")
+                    if isinstance(value, str)
+                    else value
+                )
                 for key, value in result.items()
             }
         elif isinstance(result, tuple):
@@ -35,6 +41,23 @@ def replace_underscore(func: Callable) -> Callable:
 
 def clean_markdown(text: str) -> str:
     return text.replace("_", " ")
+
+
+def check_map_button(
+    reply_markup: InlineKeyboardMarkup, call_message: Message
+) -> Optional[InlineKeyboardMarkup]:
+    try:
+        if BUTTON["show_map"] not in str(call_message):
+            reply_markup.add(
+                InlineKeyboardButton(
+                    text=BUTTON["show_map"],
+                    callback_data=("last"),
+                )
+            )
+        return reply_markup
+    except Exception as e:
+        logger.warning(f"Add show_map button failed: {e}")
+        return None
 
 
 def timing_log(

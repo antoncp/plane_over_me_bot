@@ -5,7 +5,7 @@ from telebot.types import (CallbackQuery, InlineKeyboardButton,
 
 import bot.planes as planes
 from bot.health_endpoint import flask_thread, shutdown_event
-from bot.utils import clean_markdown
+from bot.utils import check_map_button, clean_markdown
 from config import logger, settings
 
 bot = telebot.TeleBot(settings.TEL_TOKEN)
@@ -18,11 +18,12 @@ bot.set_my_commands([])
 @bot.message_handler(commands=["start"])
 def start(message: Message) -> Message:
     keyboard = ReplyKeyboardMarkup(
-        row_width=2, resize_keyboard=True, one_time_keyboard=True
+        row_width=3, resize_keyboard=True, one_time_keyboard=True
     )
     keyboard.add(
-        KeyboardButton(text=BUTTON["planes"], request_location=True),
+        KeyboardButton(text=BUTTON["sky"], request_location=True),
         KeyboardButton(text=BUTTON["last_location"]),
+        KeyboardButton(text=BUTTON["all"]),
     )
     bot.set_my_commands([])
     return bot.send_message(
@@ -50,7 +51,8 @@ def location(message: Message, **kwargs) -> None:
         plane_list = planes.get_plane_list(lat, lon)
         if not plane_list:
             return bot.send_message(message.chat.id, REMARKS["no_ADS"])
-        sort_list = planes.sort_plane_list(plane_list)
+        ground = kwargs.get("ground", False)
+        sort_list = planes.sort_plane_list(plane_list, ground)
         num_total_planes = sort_list.shape[0]
         num_planes_on_map = min(5, sort_list.shape[0])
         plane_map = planes.plane_map(lat, lon, sort_list)
@@ -90,45 +92,35 @@ def show_plane(call: CallbackQuery) -> None:
         bot.send_message(call.message.chat.id, REMARKS["outdated"])
         bot.answer_callback_query(callback_query_id=call.id)
         return
-    (
-        image,
-        plane_model,
-        date_img,
-        place_img,
-        author_img,
-        url,
-    ) = planes.get_plane_photo(plane.reg)
+    plane_img = planes.get_plane_photo(plane.reg)
     plane_selector = call.message.reply_markup
+    plane_selector = check_map_button(plane_selector, call.message)
+    if not plane_img or not plane_selector:
+        bot.send_message(call.message.chat.id, REMARKS["outdated"])
+        bot.answer_callback_query(callback_query_id=call.id)
+        return
     response = bot.edit_message_media(
-        media=telebot.types.InputMediaPhoto(image),
+        media=telebot.types.InputMediaPhoto(plane_img.image),
         chat_id=call.message.chat.id,
         message_id=call.message.message_id,
     )
     plane_pic = response.photo[0].file_id
-    update_plane_pic = planes.plane_photo_details(plane.reg)
-    update_plane_pic.image = plane_pic
-    if BUTTON["show_map"] not in str(call.message):
-        plane_selector.add(
-            InlineKeyboardButton(
-                text=BUTTON["show_map"],
-                callback_data=("last"),
-            )
-        )
+    plane_img.image = plane_pic
     bot.edit_message_caption(
         caption=(
             REMARKS["plane_details"].format(
                 plane.order,
-                plane_model,
+                plane_img.plane_model,
                 plane.reg,
                 plane.alt,
                 plane.spd,
                 plane.dist,
                 plane.start,
                 plane.end,
-                date_img,
-                clean_markdown(place_img),
-                clean_markdown(author_img),
-                url,
+                plane_img.date_img,
+                clean_markdown(plane_img.place_img),
+                clean_markdown(plane_img.author_img),
+                plane_img.url,
             )
         ),
         chat_id=call.message.chat.id,
@@ -167,13 +159,16 @@ def show_map_again(call: CallbackQuery) -> None:
 
 @bot.message_handler(content_types=["text"])
 def handle_text(message: Message) -> None:
-    if message.text == BUTTON["last_location"]:
+    if message.text in [BUTTON["last_location"], BUTTON["all"]]:
         user = planes.user_details(message.chat.id)
         if not user:
             return bot.send_message(message.chat.id, REMARKS["no_location"])
-        latitude = user.lat
-        longitude = user.lon
-        location(message, latitude=latitude, longitude=longitude)
+        lat = user.lat
+        lon = user.lon
+        if message.text == BUTTON["last_location"]:
+            location(message, latitude=lat, longitude=lon)
+        else:
+            location(message, latitude=lat, longitude=lon, ground=True)
 
 
 if __name__ == "__main__":

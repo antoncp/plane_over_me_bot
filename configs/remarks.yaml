@@ -22,6 +22,7 @@ EN:
 
     _Photo credits: {8}, {9}, {10} {11}_
   BUTTONS:
-    planes: Planes
-    last_location: Last location
+    sky: In the sky
+    last_location: Last
+    all: Sky & Ground
     show_map: Show the map

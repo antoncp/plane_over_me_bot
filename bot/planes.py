@@ -1,4 +1,4 @@
-from dataclasses import astuple, dataclass
+from dataclasses import dataclass
 from typing import Dict, Generator, Optional
 
 import pandas as pd
@@ -95,7 +95,7 @@ def get_plane_list(lat: int, lon: int) -> Dict:
         return None
 
 
-def sort_plane_list(plane_list: Dict) -> DataFrame:
+def sort_plane_list(plane_list: Dict, ground: bool) -> DataFrame:
     list = pd.DataFrame(plane_list["ac"])
     list = list[
         (list["alt"] != "")
@@ -115,7 +115,8 @@ def sort_plane_list(plane_list: Dict) -> DataFrame:
         },
         errors="ignore",
     )
-    list = list[(list["spd"] > 80)]
+    if not ground:
+        list = list[(list["spd"] > 80) & (list["alt"] > 200)]
     list = list.sort_values(by="dst")
     return list
 
@@ -158,7 +159,7 @@ def get_plane_selector(
 def get_plane_photo(reg: str) -> tuple:
     saved_plane = plane_photo_details(reg)
     if saved_plane:
-        return astuple(saved_plane)
+        return saved_plane
     url = f"https://www.jetphotos.com/registration/{reg}"
     response = requests.get(url)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -185,7 +186,7 @@ def get_plane_photo(reg: str) -> tuple:
     extra_log = {"Requested URL": url, "Author": author_img}
     plane = AirPhoto(image, plane_model, date_img, place_img, author_img, url)
     AirCraft.airphotos[reg] = plane
-    return astuple(plane), extra_log
+    return plane, extra_log
 
 
 def plane_details(id: str) -> Optional[AirCraft]:
