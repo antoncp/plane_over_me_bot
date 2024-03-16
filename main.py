@@ -59,7 +59,9 @@ def location(message: Message, **kwargs) -> None:
         caption = REMARKS["map_caption"].format(
             num_planes_on_map, num_total_planes
         )
-        sending = bot.send_photo(message.chat.id, plane_map)
+        sending = bot.send_photo(
+            message.chat.id, plane_map, caption=REMARKS["loading"]
+        )
         plane_selector = InlineKeyboardMarkup(row_width=1)
         plane_selector.add(
             *[
