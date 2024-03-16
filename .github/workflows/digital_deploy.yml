@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  REBUILT: true
+  REBUILT: false
 
 jobs:
   tests:
