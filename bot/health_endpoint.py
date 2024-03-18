@@ -11,6 +11,9 @@ shutdown_event = Event()
 
 @app.route("/", methods=["GET"])
 def webhook() -> str:
+    """Launches Flask on port 1300 as an health check endpoint with a list
+    of airplane's objects  in a current memory.
+    """
     if not shutdown_event.is_set():
         title = "Planes bot is up"
         num_planes = len(AirCraft.aircrafts)

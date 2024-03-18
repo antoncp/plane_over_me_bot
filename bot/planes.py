@@ -16,6 +16,10 @@ MAP_KEY = settings.MAP_KEY
 
 
 class AirCraft:
+    """The class for the aircraft's properties like altitude, velocity,
+    registration number etc.
+    """
+
     aircrafts = set()
     airphotos = dict()
 
@@ -35,6 +39,10 @@ class AirCraft:
 
 
 class User:
+    """The class used to store user information such as location or previously
+    viewed maps.
+    """
+
     users = dict()
 
     def __init__(self, id, lat=None, lon=None, saved=False):
@@ -65,6 +73,8 @@ class User:
 
 @dataclass
 class AirPhoto:
+    """The class to store images associated with AirCraft objects."""
+
     image: str
     plane_model: str
     date_img: str

@@ -9,6 +9,10 @@ BUTTON = settings.REMARKS["EN"]["BUTTONS"]
 
 
 def replace_underscore(func: Callable) -> Callable:
+    """Decorator that replaces underscores in return data structures with
+    whitespaces.
+    """
+
     def wrapper(*args, **kwargs):
         result = func(*args, **kwargs)
 
@@ -40,12 +44,14 @@ def replace_underscore(func: Callable) -> Callable:
 
 
 def clean_markdown(text: str) -> str:
+    """Replaces underscores in strings with whitespaces."""
     return text.replace("_", " ")
 
 
 def check_map_button(
     reply_markup: InlineKeyboardMarkup, call_message: Message
 ) -> Optional[InlineKeyboardMarkup]:
+    """Adds the Show Map button to the reply keypad."""
     try:
         if BUTTON["show_map"] not in str(call_message):
             reply_markup.add(
@@ -63,6 +69,8 @@ def check_map_button(
 def timing_log(
     show_return: bool = False, extra_log: bool = False, min_time: float = 0.1
 ) -> Callable:
+    """Decorator for measuring function execution time."""
+
     def decorator(func: Callable) -> Callable:
         def timer(*args, **kwargs):
             start_time = time.time()

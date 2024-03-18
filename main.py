@@ -17,6 +17,7 @@ bot.set_my_commands([])
 
 @bot.message_handler(commands=["start"])
 def start(message: Message) -> Message:
+    """Handles answer of the bot on start command and sets bot commands."""
     keyboard = ReplyKeyboardMarkup(
         row_width=3, resize_keyboard=True, one_time_keyboard=True
     )
@@ -36,6 +37,11 @@ def start(message: Message) -> Message:
 
 @bot.message_handler(content_types=["location"])
 def location(message: Message, **kwargs) -> None:
+    """Handles answer on user's location (live or previous from database).
+
+    Sends planes map and selectors of up to 5 nearest planes if the call
+    to ADS-B API is successful.
+    """
     if message.location is not None or kwargs.get("latitude"):
         if kwargs.get("latitude"):
             lat = kwargs.get("latitude")
@@ -89,6 +95,7 @@ def location(message: Message, **kwargs) -> None:
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("pl"))
 def show_plane(call: CallbackQuery) -> None:
+    """Displays photo and information about the selected plane."""
     plane = planes.plane_details(call.data.split()[1])
     if not plane:
         bot.send_message(call.message.chat.id, REMARKS["outdated"])
@@ -135,6 +142,9 @@ def show_plane(call: CallbackQuery) -> None:
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("last"))
 def show_map_again(call: CallbackQuery) -> None:
+    """Displays the map with the planes again after the information about
+    the particular plane.
+    """
     user = planes.user_details(call.message.chat.id)
     if not user or not user.last_map.get(call.message.message_id):
         bot.send_message(call.message.chat.id, REMARKS["outdated"])
@@ -161,6 +171,7 @@ def show_map_again(call: CallbackQuery) -> None:
 
 @bot.message_handler(content_types=["text"])
 def handle_text(message: Message) -> None:
+    """Handles bot commands and log request for admin."""
     if message.text in [BUTTON["last_location"], BUTTON["all"]]:
         user = planes.user_details(message.chat.id)
         if not user:
@@ -171,6 +182,9 @@ def handle_text(message: Message) -> None:
             location(message, latitude=lat, longitude=lon)
         else:
             location(message, latitude=lat, longitude=lon, ground=True)
+    elif message.chat.id == settings.ADMIN_ID:
+        with open("logs/all.log") as file:
+            bot.send_document(message.chat.id, file, caption="Bot log")
 
 
 if __name__ == "__main__":
