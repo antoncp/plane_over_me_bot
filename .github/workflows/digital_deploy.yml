@@ -30,9 +30,9 @@ jobs:
       env:
         DEBUG: ${{ secrets.DEBUG }}
         ADMIN_ID: ${{ secrets.ADMIN_ID }}
-        TEL_TOKEN_LOCAL: ${{ secrets.TEL_TOKEN_LOCAL }}
-        RAPID_API_TOKEN_LOCAL: ${{ secrets.RAPID_API_TOKEN_LOCAL }}
-        MAP_KEY_LOCAL: ${{ secrets.MAP_KEY_LOCAL }}
+        TEL_TOKEN: ${{ secrets.TEL_TOKEN_LOCAL }}
+        RAPID_API: ${{ secrets.RAPID_API_TOKEN_LOCAL }}
+        MAP_KEY: ${{ secrets.MAP_KEY_LOCAL }}
         ATLAS_MONGO: ${{ secrets.ATLAS_MONGO }}
       run: |
         flake8 .

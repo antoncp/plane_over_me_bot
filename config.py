@@ -5,25 +5,25 @@ import requests
 import yaml
 from dotenv import load_dotenv
 
-load_dotenv()
-
-MODE = "_LOCAL" if os.getenv("DEBUG") == "True" else ""
+load_dotenv(override=True)
 
 
 # Environment variables set up
 class Settings:
     DEBUG: bool = os.getenv("DEBUG") == "True"
-    TEL_TOKEN: str = os.getenv(f"TEL_TOKEN{MODE}")
-    RAPID_API: str = os.getenv(f"RAPID_API_TOKEN{MODE}")
-    MAP_KEY: str = os.getenv(f"MAP_KEY{MODE}")
+    TEL_TOKEN: str = os.getenv("TEL_TOKEN")
+    RAPID_API: str = os.getenv("RAPID_API")
+    MAP_KEY: str = os.getenv("MAP_KEY")
     TEL_LOG: str = os.getenv("TEL_LOG")
     ADMIN_ID: int = int(os.getenv("ADMIN_ID"))
     BASE_LATITUDE: int = os.getenv("BASE_LATITUDE")
     BASE_LONGITUDE: int = os.getenv("BASE_LONGITUDE")
     ATLAS_MONGO: str = os.getenv("ATLAS_MONGO")
+    REDIS_PAS: str = os.getenv("REDIS_PAS")
     REMARKS: dict = {}
 
 
+# settings: Settings = Settings()
 settings: Settings = Settings()
 
 

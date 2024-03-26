@@ -5,6 +5,7 @@ from telebot.types import (CallbackQuery, InlineKeyboardButton,
 
 import bot.planes as planes
 from bot.health_endpoint import flask_thread, shutdown_event
+from bot.redis import redis_updates
 from bot.utils import check_map_button, clean_markdown
 from config import logger, settings
 
@@ -189,6 +190,7 @@ def handle_text(message: Message) -> None:
 
 if __name__ == "__main__":
     flask_thread.start()
+    redis_updates()
     try:
         bot.infinity_polling(timeout=10, long_polling_timeout=5)
     except Exception as e:
