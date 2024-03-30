@@ -11,7 +11,7 @@ REDIS_CONNECTED = False
 
 try:
     r = redis.Redis(
-        host="localhost",
+        host=settings.redis_host,
         port=6379,
         password=settings.REDIS_PAS,
         decode_responses=True,

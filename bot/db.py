@@ -9,7 +9,6 @@ from .utils import timing_log
 
 try:
     base = MongoClient(settings.ATLAS_MONGO)
-    logger.debug("Successfully connected to Atlas Mongo")
 except Exception as e:
     logger.warning(f"Failed to connect to Atlas Mongo: {e}")
 
