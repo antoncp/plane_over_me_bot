@@ -6,7 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 from pandas.core.frame import DataFrame
 
-from config import logger, settings
+from config import RedisDataSharing, logger, settings
 
 from .db import read_user, save_coordinates, save_user
 from .utils import timing_log
@@ -82,6 +82,10 @@ class AirPhoto:
     author_img: str
     url: str
 
+    def __post_init__(self):
+        RedisDataSharing.last_plane_image = self.image
+        RedisDataSharing.plane_model = self.plane_model
+
 
 @timing_log()
 def get_plane_list(lat: int, lon: int) -> Dict:
@@ -141,6 +145,7 @@ def plane_map(lat: int, lon: int, list: DataFrame) -> str:
         planes += f"markers=color:blue%7Clabel:{i+1}%7C{plane}&"
 
     map = planes + f"key={MAP_KEY}"
+    RedisDataSharing.last_map = map
     return map
 
 

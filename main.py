@@ -4,8 +4,8 @@ from telebot.types import (CallbackQuery, InlineKeyboardButton,
                            ReplyKeyboardMarkup)
 
 import bot.planes as planes
+import bot.redis as share
 from bot.health_endpoint import flask_thread, shutdown_event
-from bot.redis import redis_updates
 from bot.utils import check_map_button, clean_markdown
 from config import logger, settings
 
@@ -90,6 +90,7 @@ def location(message: Message, **kwargs) -> None:
         )
         user.last_map[sending.message_id] = sending.photo[0].file_id
         user.caption[sending.message_id] = caption
+        share.one_more_map()
         if not user.saved:
             user.save_to_db()
 
@@ -138,6 +139,7 @@ def show_plane(call: CallbackQuery) -> None:
         reply_markup=plane_selector,
         parse_mode="Markdown",
     )
+    share.one_more_plane()
     bot.answer_callback_query(callback_query_id=call.id)
 
 
@@ -190,7 +192,7 @@ def handle_text(message: Message) -> None:
 
 if __name__ == "__main__":
     flask_thread.start()
-    redis_updates()
+    share.redis_updates()
     try:
         bot.infinity_polling(timeout=10, long_polling_timeout=5)
     except Exception as e:

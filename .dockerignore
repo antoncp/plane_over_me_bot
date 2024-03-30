@@ -1,4 +1,6 @@
 .env
+.env.prod
+*.env*
 .venv
 env/
 venv/

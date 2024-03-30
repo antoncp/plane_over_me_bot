@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  REBUILT: true
+  REBUILT: false
 
 jobs:
   tests:
@@ -68,7 +68,7 @@ jobs:
             cd plane_over_me_bot
             sudo docker build -t plane_over_me_bot:latest .
             sudo docker rm -f planes
-            sudo docker run --name planes -dp 1300:1300 --restart always -v ~/plane_over_me_bot:/plane_over_me_bot plane_over_me_bot:latest
+            sudo docker run --name planes -dp 1300:1300 --network uni --restart always -v ~/plane_over_me_bot:/plane_over_me_bot plane_over_me_bot:latest
 
 
       - name: Start Docker container without rebuild

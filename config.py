@@ -1,5 +1,6 @@
 import logging.config
 import os
+from datetime import datetime, timezone
 
 import requests
 import yaml
@@ -22,9 +23,22 @@ class Settings:
     REDIS_PAS: str = os.getenv("REDIS_PAS")
     REMARKS: dict = {}
 
+    @property
+    def redis_host(self):
+        if self.DEBUG:
+            return "localhost"
+        return "redis"
+
 
 # settings: Settings = Settings()
 settings: Settings = Settings()
+
+
+class RedisDataSharing:
+    last_map = ""
+    last_plane_image = ""
+    plane_model = ""
+    log_messages = []
 
 
 # Custom logging handler (sends errors alerts via Telegram)
@@ -41,6 +55,16 @@ class CustomHTTPHandler(logging.Handler):
         response = requests.get(self.url, data=data)
         if response.status_code != 200:
             logging.error(f"Error sending message: {response.text}")
+
+
+class CustomRedisHandler(logging.Handler):
+    def emit(self, record):
+        timestamp = datetime.now(timezone.utc).strftime("%d-%b-%Y %H:%M:%S")
+        RedisDataSharing.log_messages.append(
+            f"{timestamp} - {record.getMessage()}"
+        )
+        if len(RedisDataSharing.log_messages) > 5:
+            RedisDataSharing.log_messages.pop(0)
 
 
 # Logging configuration

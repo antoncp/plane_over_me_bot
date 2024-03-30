@@ -44,14 +44,19 @@ handlers:
     class: config.CustomHTTPHandler
     formatter: default
 
+  redis:
+    level: DEBUG
+    class: config.CustomRedisHandler
+    formatter: default
+
 loggers:
   special_debug:
     level: DEBUG
-    handlers: [special, default]
+    handlers: [special, default, redis]
 
   timing_debug:
     level: DEBUG
-    handlers: [special_timing, default_timing]
+    handlers: [special_timing, default_timing, redis]
 
   telegram:
     level: ERROR
