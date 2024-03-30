@@ -61,7 +61,7 @@ class CustomRedisHandler(logging.Handler):
     def emit(self, record):
         timestamp = datetime.now(timezone.utc).strftime("%d-%b-%Y %H:%M:%S")
         RedisDataSharing.log_messages.append(
-            f"{timestamp} - {record.getMessage()}"
+            f"{timestamp} && {record.getMessage()}"
         )
         if len(RedisDataSharing.log_messages) > 5:
             RedisDataSharing.log_messages.pop(0)
