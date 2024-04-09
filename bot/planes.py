@@ -85,6 +85,8 @@ class AirPhoto:
     def __post_init__(self):
         RedisDataSharing.last_plane_image = self.image
         RedisDataSharing.plane_model = self.plane_model
+        RedisDataSharing.last_plane_url = self.url
+        RedisDataSharing.last_plane_photo_author = self.author_img
 
 
 @timing_log()

@@ -37,6 +37,8 @@ settings: Settings = Settings()
 class RedisDataSharing:
     last_map = ""
     last_plane_image = ""
+    last_plane_url = ""
+    last_plane_photo_author = ""
     plane_model = ""
     log_messages = []
 
