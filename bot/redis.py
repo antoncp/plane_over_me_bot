@@ -38,6 +38,8 @@ def redis_updates():
         "planes": reg_planes,
         "last_map": RedisDataSharing.last_map,
         "last_plane_image": RedisDataSharing.last_plane_image,
+        "last_plane_url": RedisDataSharing.last_plane_url,
+        "last_plane_photo_author": RedisDataSharing.last_plane_photo_author,
         "plane_model": RedisDataSharing.plane_model,
         "log_messages": RedisDataSharing.log_messages,
     }
